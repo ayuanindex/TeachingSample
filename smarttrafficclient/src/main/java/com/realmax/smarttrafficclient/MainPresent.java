@@ -65,4 +65,11 @@ public class MainPresent implements MainLogic.MainUiRefresh {
     public void setNumberPlate(String numberPlate) {
         mainView.setNumberPlate(numberPlate);
     }
+
+    /**
+     * 开始进行缴费
+     */
+    public void startPayment() {
+        mainLogic.startPayment(this);
+    }
 }
