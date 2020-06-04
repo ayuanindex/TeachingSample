@@ -1,4 +1,5 @@
 package com.realmax.base;
 
-public class BaseLogic {
+public abstract class BaseLogic {
+
 }

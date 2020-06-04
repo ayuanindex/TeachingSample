@@ -7,12 +7,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        app:cardCornerRadius="20dp">
-
+        app:cardCornerRadius="20dp"
+        app:cardElevation="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -88,7 +88,7 @@
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/tvNumberPlate"
@@ -108,7 +108,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardMyCar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,17 +116,20 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="10dp"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            app:cardCornerRadius="10dp">
+            app:cardBackgroundColor="@color/colorAccent"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="20dp"
-                android:text="我的汽车" />
-        </androidx.cardview.widget.CardView>
+                android:text="设置我的车辆"
+                android:textColor="#ffffff" />
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardPayment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -134,14 +137,17 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="10dp"
             android:foreground="?attr/selectableItemBackgroundBorderless"
-            app:cardCornerRadius="10dp">
+            app:cardBackgroundColor="@color/colorAccent"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="20dp"
-                android:text="一键缴费" />
-        </androidx.cardview.widget.CardView>
+                android:text="一键缴费"
+                android:textColor="#ffffff" />
+        </com.google.android.material.card.MaterialCardView>
     </RelativeLayout>
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.realmax.smarttrafficclient;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -48,11 +49,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
             mainPresent.setNumberPlate();
         });
 
-        cardPayment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
+        cardPayment.setOnClickListener((View v) -> {
+            // TODO: 2020/6/4
         });
     }
 
@@ -61,5 +59,16 @@ public class MainActivity extends AppCompatActivity implements MainView {
         mainPresent = new MainPresent(this, mainLogic);
 
         mainPresent.initData();
+    }
+
+    @Override
+    public AppCompatActivity getActivity() {
+        return this;
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void setNumberPlate(String numberPlate) {
+        tvNumberPlate.setText("车牌号:" + numberPlate);
     }
 }
