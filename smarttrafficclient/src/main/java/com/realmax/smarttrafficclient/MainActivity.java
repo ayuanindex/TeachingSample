@@ -9,6 +9,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.realmax.base.network.HttpUtil;
+import com.realmax.base.utils.SpUtil;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import okhttp3.Call;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity implements MainView {
 
     private TextView tvTime;
@@ -60,6 +69,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
         mainPresent = new MainPresent(this, mainLogic);
 
         mainPresent.initData();
+        HttpUtil.doPost(new HashMap<>(), SpUtil.class, new HttpUtil.Result<SpUtil>() {
+            @Override
+            public void getData(SpUtil spUtil, Call call, Response response) {
+
+            }
+
+            @Override
+            public void error(Call call, IOException e) {
+
+            }
+        });
     }
 
     @Override

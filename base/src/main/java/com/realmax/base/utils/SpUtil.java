@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 
 import com.realmax.base.App;
 
+/**
+ * @author ayuan
+ */
 public class SpUtil {
     private static SharedPreferences sharedPreferences;
 
