@@ -36,6 +36,10 @@ dependencies {
     api 'com.google.android.material:material:1.1.0'
     api 'androidx.legacy:legacy-support-v4:1.0.0'
 
+    // 访问云端MYSQL
+    api files('libs/mysql-connector-java-5.1.45-bin.jar')
+
+    // FTP
     api files('libs/commons-net-3.0.1.jar')
 
     // OkHttp
