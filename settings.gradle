@@ -1,0 +1,4 @@
+include ':base'
+include ':smarttrafficmanager'
+include ':smarttrafficclient'
+rootProject.name = "TeachingSample"
