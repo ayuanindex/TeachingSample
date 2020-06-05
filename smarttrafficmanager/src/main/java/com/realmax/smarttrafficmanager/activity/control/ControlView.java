@@ -1,5 +1,7 @@
 package com.realmax.smarttrafficmanager.activity.control;
 
+import android.graphics.Bitmap;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -13,4 +15,10 @@ public interface ControlView {
      */
     AppCompatActivity getActivity();
 
+    /**
+     * 设置图片
+     *
+     * @param bitmap 图片
+     */
+    void setImageData(Bitmap bitmap);
 }

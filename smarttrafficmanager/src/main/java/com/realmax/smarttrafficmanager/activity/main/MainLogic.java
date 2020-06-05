@@ -1,7 +1,6 @@
 package com.realmax.smarttrafficmanager.activity.main;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
 import com.realmax.base.utils.L;
@@ -10,6 +9,9 @@ import com.realmax.smarttrafficmanager.activity.tcp.CustomerCallback;
 import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
 import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
 import com.realmax.smarttrafficmanager.bean.WeatherBean;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * @author ayuan
@@ -51,9 +53,12 @@ public class MainLogic extends BaseLogic {
      */
     private void retrieveData(String msg, MainUiRefresh mainUiRefresh) {
         try {
-            weatherBean = new Gson().fromJson(msg, WeatherBean.class);
-            mainUiRefresh.setWeather(weatherBean);
-        } catch (JsonSyntaxException e) {
+            JSONObject jsonObject = new JSONObject(msg);
+            if ("ans".equals(jsonObject.optString("cmd"))) {
+                weatherBean = new Gson().fromJson(msg, WeatherBean.class);
+                mainUiRefresh.setWeather(weatherBean);
+            }
+        } catch (JSONException e) {
             e.printStackTrace();
             String substring = msg.substring(1);
             retrieveData(substring, mainUiRefresh);

@@ -62,12 +62,9 @@ public class MainPresent implements MainLogic.MainUiRefresh {
      */
     @Override
     public void setWeather(WeatherBean weatherBean) {
-        switchToMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mainView != null) {
-                    mainView.setWeather(weatherBean, mainLogic.getWeatherIcon(weatherBean, MainPresent.this));
-                }
+        switchToMainThread(() -> {
+            if (mainView != null) {
+                mainView.setWeather(weatherBean, mainLogic.getWeatherIcon(weatherBean, MainPresent.this));
             }
         });
     }

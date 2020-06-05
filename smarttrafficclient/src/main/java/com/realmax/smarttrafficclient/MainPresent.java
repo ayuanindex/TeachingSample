@@ -25,7 +25,8 @@ public class MainPresent implements MainLogic.MainUiRefresh {
      *
      * @param runnable 回调
      */
-    private void switchToMainThread(Runnable runnable) {
+    @Override
+    public void switchToMainThread(Runnable runnable) {
         uiHandler.post(runnable);
     }
 

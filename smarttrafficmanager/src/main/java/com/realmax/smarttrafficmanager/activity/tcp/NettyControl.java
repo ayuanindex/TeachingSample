@@ -68,12 +68,12 @@ public class NettyControl {
     /**
      * 发送获取摄像头摄像数据的指令
      *
-     * @param deviceId 摄像头的设备ID
-     * @param angleA   横向旋转角度---默认0
-     * @param angleB   纵向旋转角度---默认45
+     * @param deviceType 摄像头的设备ID
+     * @param cameraNum  摄像头编号
+     * @param deviceId   设备编号
      */
-    public static void sendCameraCmd(int deviceId, float angleA, float angleB) {
-        CustomerHandlerBase customerHandler = getHandlerHashMap().get("camera");
+    public static void sendCameraCmd(String deviceType, int deviceId, int cameraNum) {
+        CustomerHandlerBase customerHandler = getHandlerHashMap().get("Camera");
         if (customerHandler == null) {
             return;
         }
@@ -84,9 +84,10 @@ public class NettyControl {
             return;
         }
 
-        String command = "{\"cmd\": \"start\", \"deviceId\": " + deviceId + ", \"angleA\": " + angleA + ", \"angleB\": " + angleB + "}";
-        /*String command = "{\"cmd\": \"start\", \"deviceType\": \"十字交叉路口\", \"deviceId\": 1, \"cameraNum\": 1}";*/
-        handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x82)));
+
+        /*String command = "{\"cmd\": \"start\", \"deviceId\": \"" + deviceId + "\", \"angleA\": " + angleA + ", \"angleB\": " + angleB + "}";*/
+        String command = "{\"cmd\": \"start\", \"deviceType\": \"" + deviceType + "\", \"deviceId\": " + deviceId + ", \"cameraNum\": " + cameraNum + "}";
+        handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x02)));
     }
 
     /**

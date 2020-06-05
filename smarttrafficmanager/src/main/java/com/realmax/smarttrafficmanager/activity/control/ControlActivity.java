@@ -1,5 +1,6 @@
 package com.realmax.smarttrafficmanager.activity.control;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -53,7 +54,27 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     }
 
     private void initListener() {
-
+        rgSelect.setOnCheckedChangeListener((RadioGroup group, int checkedId) -> {
+            switch (checkedId) {
+                case R.id.rbSouthEnter:
+                    // 南进
+                    controlPresent.switchCamera("ETC收费站", 1, 2);
+                    break;
+                case R.id.rbSouthOut:
+                    controlPresent.switchCamera("ETC收费站", 1, 1);
+                    // 南出
+                    break;
+                case R.id.rbNorthEnter:
+                    controlPresent.switchCamera("ETC收费站", 2, 1);
+                    // 北进
+                    break;
+                case R.id.rbNorthOut:
+                    controlPresent.switchCamera("ETC收费站", 2, 2);
+                    // 北出
+                    break;
+                default:
+            }
+        });
     }
 
     private void initData() {
@@ -66,5 +87,10 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     @Override
     public AppCompatActivity getActivity() {
         return this;
+    }
+
+    @Override
+    public void setImageData(Bitmap bitmap) {
+        ivImage.setImageBitmap(bitmap);
     }
 }
