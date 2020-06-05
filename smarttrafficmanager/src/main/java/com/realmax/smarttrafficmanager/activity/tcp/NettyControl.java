@@ -116,7 +116,7 @@ public class NettyControl {
      * 发送获取天气信息的指令
      */
     public static void sendWeatherCmd() {
-        CustomerHandlerBase customerHandler = getHandlerHashMap().get("camera");
+        CustomerHandlerBase customerHandler = getHandlerHashMap().get("Camera");
         if (customerHandler == null) {
             return;
         }
@@ -127,7 +127,7 @@ public class NettyControl {
             return;
         }
         String command = "{\"cmd\": \"pull\"}";
-        handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x83)));
+        handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x03)));
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.realmax.smarttrafficmanager.activity.main;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +15,10 @@ import com.realmax.smarttrafficmanager.activity.control.ControlActivity;
 import com.realmax.smarttrafficmanager.activity.count.CountActivity;
 import com.realmax.smarttrafficmanager.activity.payment.PaymentActivity;
 import com.realmax.smarttrafficmanager.activity.setting.SettingActivity;
+import com.realmax.smarttrafficmanager.bean.WeatherBean;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author ayuan
@@ -30,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private ImageView ivTraffic;
     private ImageView ivPayment;
     private MaterialCardView cardCommunicationSettings;
+    private MainLogic mainLogic;
+    private MainPresent mainPresent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
         });
 
         ivTraffic.setOnClickListener((View v) -> {
-
         });
 
         ivPayment.setOnClickListener((View v) -> {
@@ -80,11 +86,32 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     private void initData() {
+        mainLogic = new MainLogic();
+        mainPresent = new MainPresent(this, mainLogic);
 
+        mainPresent.initData();
     }
 
     @Override
     public AppCompatActivity getActivity() {
         return this;
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void setWeather(WeatherBean weatherBean, int weatherIcon) {
+        tvTime.setText(weatherBean.getTime().substring(0, 5));
+        ivWeatherIcon.setImageResource(weatherIcon);
+        tvTemperature.setText(weatherBean.getTemp() + "ºC");
+        tvWeather.setText(weatherBean.getWeather());
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy,MM,dd");
+        String dateStr = simpleDateFormat.format(new Date());
+        tvDate.setText(dateStr);
+    }
+
+    @Override
+    protected void onResume() {
+        mainPresent.onResume();
+        super.onResume();
     }
 }

@@ -5,6 +5,8 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.realmax.smarttrafficmanager.bean.WeatherBean;
+
 /**
  * @author ayuan
  */
@@ -18,6 +20,14 @@ public class MainPresent implements MainLogic.MainUiRefresh {
         this.mainView = mainView;
         this.mainLogic = mainLogic;
         uiHandler = new Handler(Looper.getMainLooper());
+    }
+
+    public void initData() {
+        getWeather();
+    }
+
+    private void getWeather() {
+        mainLogic.getWeather(this);
     }
 
     /**
@@ -38,5 +48,27 @@ public class MainPresent implements MainLogic.MainUiRefresh {
     @Override
     public void switchToMainThread(Runnable runnable) {
         uiHandler.post(runnable);
+    }
+
+    /**
+     * 获取天气
+     */
+    public void onResume() {
+        getWeather();
+    }
+
+    /**
+     * @param weatherBean 天气
+     */
+    @Override
+    public void setWeather(WeatherBean weatherBean) {
+        switchToMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mainView != null) {
+                    mainView.setWeather(weatherBean, mainLogic.getWeatherIcon(weatherBean, MainPresent.this));
+                }
+            }
+        });
     }
 }
