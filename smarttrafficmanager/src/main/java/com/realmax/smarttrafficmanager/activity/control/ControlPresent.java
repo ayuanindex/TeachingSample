@@ -26,6 +26,10 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
         uiHandler.post(runnable);
     }
 
+    public void initData() {
+
+    }
+
     @Override
     public AppCompatActivity getActivity() {
         return controlView.getActivity();

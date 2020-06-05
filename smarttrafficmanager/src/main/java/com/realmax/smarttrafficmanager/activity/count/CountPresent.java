@@ -5,6 +5,10 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.realmax.smarttrafficmanager.bean.ParkingBean;
+
+import java.util.ArrayList;
+
 /**
  * @author ayuan
  */
@@ -28,5 +32,21 @@ public class CountPresent implements CountLogic.CountUiRefresh {
     @Override
     public AppCompatActivity getActivity() {
         return countView.getActivity();
+    }
+
+    public void initData() {
+        getParking();
+    }
+
+    /**
+     * 获取停车位
+     */
+    private void getParking() {
+        countLogic.getParking(this);
+    }
+
+    @Override
+    public void setListData(ArrayList<ParkingBean> parkingBeans) {
+        switchToMainThread(() -> countView.setListData(parkingBeans));
     }
 }

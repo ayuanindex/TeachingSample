@@ -27,6 +27,8 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     private CheckBox cbEnterLine;
     private CheckBox cbOutLine;
     private Switch swControl;
+    private ControlPresent controlPresent;
+    private ControlLogic controlLogic;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,7 +57,10 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     }
 
     private void initData() {
+        controlLogic = new ControlLogic();
+        controlPresent = new ControlPresent(this, controlLogic);
 
+        controlPresent.initData();
     }
 
     @Override
