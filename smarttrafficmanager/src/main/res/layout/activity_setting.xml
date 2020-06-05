@@ -62,16 +62,17 @@
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
         android:foreground="?attr/selectableItemBackgroundBorderless"
-        app:cardBackgroundColor="@color/colorPrimary"
         app:cardCornerRadius="10dp"
         app:cardElevation="10dp">
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
+            android:background="@color/colorPrimary"
             android:gravity="center"
+            android:padding="10dp"
             android:text="connect"
             android:textColor="#ffffff" />
     </com.google.android.material.card.MaterialCardView>

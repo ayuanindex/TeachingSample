@@ -14,12 +14,17 @@ android {
         consumerProguardFiles "consumer-rules.pro"
     }
 
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -47,4 +52,7 @@ dependencies {
 
     // Gson
     api 'com.google.code.gson:gson:2.8.6'
+
+    // Netty
+    api 'io.netty:netty-all:5.0.0.Alpha2'
 }
