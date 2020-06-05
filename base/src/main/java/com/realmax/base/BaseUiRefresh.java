@@ -29,4 +29,10 @@ public interface BaseUiRefresh {
     default void showToast(String message) {
         App.showToast(message);
     }
+
+    /**
+     * 切换到主线程运行
+     * @param runnable
+     */
+    void switchToMainThread(Runnable runnable);
 }

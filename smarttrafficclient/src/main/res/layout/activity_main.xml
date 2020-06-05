@@ -51,11 +51,11 @@
 
                     <TextView
                         android:id="@+id/tvTemperature"
-                        android:typeface="serif"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="26ºC/15ºC" />
+                        android:text="26ºC/15ºC"
+                        android:typeface="serif" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -77,9 +77,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:typeface="serif"
                     android:text="2020,06,05"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:typeface="serif" />
 
                 <TextView
                     android:id="@+id/tvWeather"
@@ -98,7 +98,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="车牌号:XXX" />
+        android:text="车牌号:" />
 
     <TextView
         android:id="@+id/tvDescription"

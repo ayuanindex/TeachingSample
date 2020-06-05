@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name="com.realmax.base.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -12,13 +13,40 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".activity.main.MainActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--道闸控制-->
+        <activity
+            android:name=".activity.control.ControlActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <!--统计-->
+        <activity
+            android:name=".activity.count.CountActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <!--缴费监控-->
+        <activity
+            android:name=".activity.payment.PaymentActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <!--通讯设置-->
+        <activity
+            android:name=".activity.setting.SettingActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

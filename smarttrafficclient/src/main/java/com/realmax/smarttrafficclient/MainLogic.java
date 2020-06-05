@@ -73,7 +73,7 @@ public class MainLogic extends BaseLogic {
      * 显示车牌号
      */
     public void showNumberPlate(MainUiRefresh mainUiRefresh) {
-        String numberPlate = SpUtil.getString(NUMBER_PLATE, "");
+        String numberPlate = SpUtil.getString(NUMBER_PLATE, "暂未设置车牌号");
         mainUiRefresh.setNumberPlate(numberPlate);
     }
 
