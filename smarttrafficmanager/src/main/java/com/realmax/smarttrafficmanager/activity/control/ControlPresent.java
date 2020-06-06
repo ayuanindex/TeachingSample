@@ -35,6 +35,14 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
 
     public void initData() {
         startCamera();
+        getEntranceStatus();
+    }
+
+    /**
+     * 开启出入口的循环检测
+     */
+    private void getEntranceStatus() {
+        controlLogic.getEntranceStatus(this);
     }
 
     /**

@@ -108,8 +108,8 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
         controlPresent = new ControlPresent(this, controlLogic);
 
         controlPresent.initData();
-        controlPresent.getBarrierStatus(barrierId);
-        controlPresent.getInductionLine(entryId, outId);
+        /*controlPresent.getBarrierStatus(barrierId);
+        controlPresent.getInductionLine(entryId, outId);*/
     }
 
     @Override
