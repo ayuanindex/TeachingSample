@@ -21,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -97,15 +96,9 @@ public class ControlLogic extends BaseLogic {
      *
      * @param barrierId 道闸在数据库中的ID
      */
-    public void getBarrierStatus(int barrierId, ControlUiRefresh controlUiRefresh) {
+    public void getBarrierStatus(int barrierId) {
         this.barrierId = barrierId;
-        barrierBean.setId(barrierId);
-        /*BarrierBean barrierBean = new BarrierBean();
-        barrierBean.setId(barrierId);
-        QueryUtil.queryBarrierStatus(barrierBean, (Object object) -> {
-            L.e(barrierBean.toString());
-            controlUiRefresh.setBarrierStatus(Integer.parseInt(barrierBean.getSignalValue()));
-        });*/
+        /*barrierBean.setId(barrierId);*/
     }
 
     /**
@@ -124,41 +117,40 @@ public class ControlLogic extends BaseLogic {
     /**
      * 查询感应线状态
      *
-     * @param entryId          入车
-     * @param outId            出车
-     * @param controlUiRefresh 回调
+     * @param entryId 入车
+     * @param outId   出车
      */
-    public void getInductionLine(int entryId, int outId, ControlUiRefresh controlUiRefresh) {
+    public void getInductionLine(int entryId, int outId) {
         this.entryId = entryId;
         this.outId = outId;
-        inductionLineBeans.get(0).setId(entryId);
-        inductionLineBeans.get(1).setId(outId);
-        /*ArrayList<InductionLineBean> inductionLineBeans = new ArrayList<>(2);
-        inductionLineBeans.add(new InductionLineBean(entryId));
-        inductionLineBeans.add(new InductionLineBean(outId));
-        QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
-            Collections.sort(inductionLineBeans, (InductionLineBean o1, InductionLineBean o2) -> o1.getId() - o2.getId());
-            controlUiRefresh.setLineWidgetStatus(inductionLineBeans);
-        });*/
+        /*inductionLineBeans.get(0).setId(entryId);
+        inductionLineBeans.get(1).setId(outId);*/
     }
 
     /**
      * 开启出入口循环检测
      */
     public void getEntranceStatus(ControlUiRefresh controlUiRefresh) {
-        // 道闸
-        barrierBean = new BarrierBean();
-        barrierBean.setId(barrierId);
 
-        // 感应线
-        inductionLineBeans = new ArrayList<>(2);
-        inductionLineBeans.add(new InductionLineBean(entryId));
-        inductionLineBeans.add(new InductionLineBean(outId));
+        /*barrierBean.setId(barrierId);*/
+
+
+        /*inductionLineBeans.add(new InductionLineBean(entryId));
+        inductionLineBeans.add(new InductionLineBean(outId));*/
 
         timer = new Timer();
         task = new TimerTask() {
             @Override
             public void run() {
+                // 道闸
+                barrierBean = new BarrierBean();
+                barrierBean.setId(barrierId);
+
+                // 感应线
+                inductionLineBeans = new ArrayList<>(2);
+                inductionLineBeans.add(new InductionLineBean(entryId));
+                inductionLineBeans.add(new InductionLineBean(outId));
+
                 // 查询道闸状态
                 QueryUtil.queryBarrierStatus(barrierBean, (Object object) -> {
                     L.e(barrierBean.toString());
@@ -166,7 +158,6 @@ public class ControlLogic extends BaseLogic {
                 });
 
                 QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
-                    Collections.sort(inductionLineBeans, (InductionLineBean o1, InductionLineBean o2) -> o1.getId() - o2.getId());
                     controlUiRefresh.setLineWidgetStatus(inductionLineBeans);
                 });
             }

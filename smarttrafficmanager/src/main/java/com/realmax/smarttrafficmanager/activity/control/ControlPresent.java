@@ -84,7 +84,7 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      * @param barrierId 道闸在数据库中的ID
      */
     public void getBarrierStatus(int barrierId) {
-        controlLogic.getBarrierStatus(barrierId, this);
+        controlLogic.getBarrierStatus(barrierId);
     }
 
     /**
@@ -115,7 +115,7 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      * @param outId   入口出车
      */
     public void getInductionLine(int entryId, int outId) {
-        controlLogic.getInductionLine(entryId, outId, this);
+        controlLogic.getInductionLine(entryId, outId);
     }
 
     @Override

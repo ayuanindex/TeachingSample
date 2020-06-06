@@ -57,25 +57,26 @@ public class QueryUtil {
      * @param result      回调
      */
     public static void queryBarrierStatus(BarrierBean barrierBean, Result result) {
-        CustomerThread.poolExecutor.execute(() -> {
-            try {
-                Connection drivingConn = DbOpenhelper.getDrivingConn();
-                String sql = "select * from signal_info where id=?;";
-                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
-                preparedStatement.setInt(1, barrierBean.getId());
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    barrierBean.setSignalName(resultSet.getString("signal_name"));
-                    barrierBean.setSignalText(resultSet.getString("signal_text"));
-                    barrierBean.setSignalType(resultSet.getString("signal_type"));
-                    barrierBean.setSignalValue(resultSet.getString("signal_value"));
-                }
-                result.success(barrierBean);
-                DbOpenhelper.closeAll(preparedStatement, resultSet);
-            } catch (SQLException e) {
-                e.printStackTrace();
+        try {
+            Connection drivingConn = DbOpenhelper.getDrivingConn();
+            String sql = "select * from signal_info where id=?;";
+            PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+            preparedStatement.setInt(1, barrierBean.getId());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                barrierBean.setSignalName(resultSet.getString("signal_name"));
+                barrierBean.setSignalText(resultSet.getString("signal_text"));
+                barrierBean.setSignalType(resultSet.getString("signal_type"));
+                barrierBean.setSignalValue(resultSet.getString("signal_value"));
             }
-        });
+            result.success(barrierBean);
+            DbOpenhelper.closeAll(preparedStatement, resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        /*CustomerThread.poolExecutor.execute(() -> {
+
+        });*/
     }
 
     /**
@@ -113,32 +114,35 @@ public class QueryUtil {
      * @param result             查询你结果回调
      */
     public static void queryInductionLine(ArrayList<InductionLineBean> inductionLineBeans, Result result) {
-        synchronized (QueryUtil.class) {
-            CustomerThread.poolExecutor.execute(() -> {
-                try {
-                    Connection drivingConn = DbOpenhelper.getDrivingConn();
-                    PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (?, ?);");
-                    preparedStatement.setInt(1, inductionLineBeans.get(0).getId());
-                    preparedStatement.setInt(2, inductionLineBeans.get(1).getId());
-                    ResultSet resultSet = preparedStatement.executeQuery();
-                    while (resultSet.next()) {
-                        for (InductionLineBean inductionLineBean : inductionLineBeans) {
-                            if (resultSet.getInt("id") == inductionLineBean.getId()) {
-                                inductionLineBean.setSignalName(resultSet.getString("signal_name"));
-                                inductionLineBean.setSignalText(resultSet.getString("signal_text"));
-                                inductionLineBean.setSignalType(resultSet.getString("signal_type"));
-                                inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
-                                break;
-                            }
-                        }
+        try {
+            Connection drivingConn = DbOpenhelper.getDrivingConn();
+            PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (?, ?);");
+            preparedStatement.setInt(1, inductionLineBeans.get(0).getId());
+            preparedStatement.setInt(2, inductionLineBeans.get(1).getId());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                for (InductionLineBean inductionLineBean : inductionLineBeans) {
+                    if (resultSet.getInt("id") == inductionLineBean.getId()) {
+                        inductionLineBean.setSignalName(resultSet.getString("signal_name"));
+                        inductionLineBean.setSignalText(resultSet.getString("signal_text"));
+                        inductionLineBean.setSignalType(resultSet.getString("signal_type"));
+                        inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
+                        break;
                     }
-                    result.success(inductionLineBeans);
-                    DbOpenhelper.closeAll(preparedStatement, resultSet);
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
-            });
+            }
+            result.success(inductionLineBeans);
+            DbOpenhelper.closeAll(preparedStatement, resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
+
+        /*CustomerThread.poolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });*/
     }
 
     public interface Result {
