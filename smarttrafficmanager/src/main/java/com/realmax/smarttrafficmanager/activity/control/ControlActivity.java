@@ -3,6 +3,7 @@ package com.realmax.smarttrafficmanager.activity.control;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -30,6 +31,13 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     private Switch swControl;
     private ControlPresent controlPresent;
     private ControlLogic controlLogic;
+    private final int SOUTH_ENTRY = 25;
+    private final int SOUTH_OUT = 26;
+    private final int NORTH_ENTRY = 27;
+    private final int NORTH_OUT = 28;
+    private int barrierId = SOUTH_ENTRY;
+    private int entryId = 17;
+    private int outId = 18;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,21 +67,39 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
                 case R.id.rbSouthEnter:
                     // 南进
                     controlPresent.switchCamera("ETC收费站", 1, 2);
+                    barrierId = SOUTH_ENTRY;
+                    entryId = 17;
+                    outId = 18;
                     break;
                 case R.id.rbSouthOut:
-                    controlPresent.switchCamera("ETC收费站", 1, 1);
                     // 南出
+                    controlPresent.switchCamera("ETC收费站", 1, 1);
+                    barrierId = SOUTH_OUT;
+                    entryId = 19;
+                    outId = 20;
                     break;
                 case R.id.rbNorthEnter:
-                    controlPresent.switchCamera("ETC收费站", 2, 1);
                     // 北进
+                    controlPresent.switchCamera("ETC收费站", 2, 1);
+                    barrierId = NORTH_ENTRY;
+                    entryId = 21;
+                    outId = 22;
                     break;
                 case R.id.rbNorthOut:
-                    controlPresent.switchCamera("ETC收费站", 2, 2);
                     // 北出
+                    controlPresent.switchCamera("ETC收费站", 2, 2);
+                    barrierId = NORTH_OUT;
+                    entryId = 23;
+                    outId = 24;
                     break;
                 default:
             }
+            controlPresent.getBarrierStatus(barrierId);
+            controlPresent.getInductionLine(entryId, outId);
+        });
+
+        swControl.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            controlPresent.updateBarrier(barrierId, isChecked);
         });
     }
 
@@ -82,6 +108,8 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
         controlPresent = new ControlPresent(this, controlLogic);
 
         controlPresent.initData();
+        controlPresent.getBarrierStatus(barrierId);
+        controlPresent.getInductionLine(entryId, outId);
     }
 
     @Override
@@ -92,5 +120,16 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     @Override
     public void setImageData(Bitmap bitmap) {
         ivImage.setImageBitmap(bitmap);
+    }
+
+    @Override
+    public void setBarrierStatus(int signalValue) {
+        swControl.setChecked(signalValue == 1);
+    }
+
+    @Override
+    public void setLineWidgetStatus(int entryStatus, int outStatus) {
+        cbEnterLine.setChecked(entryStatus == 1);
+        cbOutLine.setChecked(outStatus == 1);
     }
 }

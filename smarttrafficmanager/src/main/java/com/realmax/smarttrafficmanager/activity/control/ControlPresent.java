@@ -7,6 +7,9 @@ import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.realmax.base.App;
+import com.realmax.smarttrafficmanager.bean.InductionLineBean;
+
+import java.util.ArrayList;
 
 /**
  * @author ayuan
@@ -48,12 +51,7 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
 
     @Override
     public void showToast(String message) {
-        switchToMainThread(new Runnable() {
-            @Override
-            public void run() {
-                App.showToast(message);
-            }
-        });
+        switchToMainThread(() -> App.showToast(message));
     }
 
     @Override
@@ -70,5 +68,52 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      */
     public void switchCamera(String deviceType, int deviceId, int cameraNum) {
         controlLogic.startCamera(deviceType, deviceId, cameraNum, this);
+    }
+
+    /**
+     * 查看道闸状态
+     *
+     * @param barrierId 道闸在数据库中的ID
+     */
+    public void getBarrierStatus(int barrierId) {
+        controlLogic.getBarrierStatus(barrierId, this);
+    }
+
+    /**
+     * 设置道闸状态
+     *
+     * @param signalValue 0表示关，1表示开
+     */
+    @Override
+    public void setBarrierStatus(int signalValue) {
+        switchToMainThread(() -> controlView.setBarrierStatus(signalValue));
+    }
+
+    /**
+     * 更新道闸状态
+     *
+     * @param barrierId 道闸ID
+     * @param isChecked true表示打开，false表示关闭
+     */
+    public void updateBarrier(int barrierId, boolean isChecked) {
+        controlLogic.updateBarrier(barrierId, isChecked);
+
+    }
+
+    /**
+     * 获取感应线的状态
+     *
+     * @param entryId 入口入车
+     * @param outId   入口出车
+     */
+    public void getInductionLine(int entryId, int outId) {
+        controlLogic.getInductionLine(entryId, outId, this);
+    }
+
+    @Override
+    public void setLineWidgetStatus(ArrayList<InductionLineBean> inductionLineBeans) {
+        int entryStatus = Integer.parseInt(inductionLineBeans.get(0).getSignalValue());
+        int outStatus = Integer.parseInt(inductionLineBeans.get(1).getSignalValue());
+        switchToMainThread(() -> controlView.setLineWidgetStatus(entryStatus, outStatus));
     }
 }

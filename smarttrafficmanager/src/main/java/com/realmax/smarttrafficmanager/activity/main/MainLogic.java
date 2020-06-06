@@ -1,6 +1,7 @@
 package com.realmax.smarttrafficmanager.activity.main;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
 import com.realmax.base.utils.L;
@@ -62,6 +63,8 @@ public class MainLogic extends BaseLogic {
             e.printStackTrace();
             String substring = msg.substring(1);
             retrieveData(substring, mainUiRefresh);
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
         }
     }
 
