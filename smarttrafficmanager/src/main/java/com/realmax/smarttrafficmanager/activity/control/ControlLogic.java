@@ -10,6 +10,7 @@ import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
 import com.realmax.base.utils.EncodeAndDecode;
 import com.realmax.base.utils.L;
+import com.realmax.base.utils.NumberPlateORC;
 import com.realmax.smarttrafficmanager.activity.tcp.CustomerCallback;
 import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
 import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
@@ -37,6 +38,10 @@ public class ControlLogic extends BaseLogic {
     private int outId = 18;
     private BarrierBean barrierBean;
     private ArrayList<InductionLineBean> inductionLineBeans;
+    private int deviceId;
+    private int cameraNum;
+    private String jsonStr;
+    private boolean isOpen = true;
 
     /**
      * 发送查看虚拟摄像头的命令
@@ -47,6 +52,9 @@ public class ControlLogic extends BaseLogic {
      * @param controlUiRefresh 回调
      */
     public void startCamera(String deviceType, int deviceId, int cameraNum, ControlUiRefresh controlUiRefresh) {
+        this.deviceId = deviceId;
+        this.cameraNum = cameraNum;
+
         CustomerHandlerBase customerHandlerBase = NettyControl.getHandlerHashMap().get("Camera");
         if (customerHandlerBase != null) {
             customerHandlerBase.setCustomerCallback(new CustomerCallback() {
@@ -81,6 +89,7 @@ public class ControlLogic extends BaseLogic {
                 if ("play".equals(jsonObject.optString("cmd"))) {
                     String imageData = jsonObject.optString("cameraImg");
                     bitmap = EncodeAndDecode.base64ToImage(imageData);
+                    jsonStr = msg;
                     controlUiRefresh.setImageData(bitmap);
                 }
             }
@@ -98,7 +107,6 @@ public class ControlLogic extends BaseLogic {
      */
     public void getBarrierStatus(int barrierId) {
         this.barrierId = barrierId;
-        /*barrierBean.setId(barrierId);*/
     }
 
     /**
@@ -123,21 +131,12 @@ public class ControlLogic extends BaseLogic {
     public void getInductionLine(int entryId, int outId) {
         this.entryId = entryId;
         this.outId = outId;
-        /*inductionLineBeans.get(0).setId(entryId);
-        inductionLineBeans.get(1).setId(outId);*/
     }
 
     /**
      * 开启出入口循环检测
      */
     public void getEntranceStatus(ControlUiRefresh controlUiRefresh) {
-
-        /*barrierBean.setId(barrierId);*/
-
-
-        /*inductionLineBeans.add(new InductionLineBean(entryId));
-        inductionLineBeans.add(new InductionLineBean(outId));*/
-
         timer = new Timer();
         task = new TimerTask() {
             @Override
@@ -153,16 +152,51 @@ public class ControlLogic extends BaseLogic {
 
                 // 查询道闸状态
                 QueryUtil.queryBarrierStatus(barrierBean, (Object object) -> {
-                    L.e(barrierBean.toString());
+                    /*L.e(barrierBean.toString());*/
                     controlUiRefresh.setBarrierStatus(Integer.parseInt(barrierBean.getSignalValue()));
                 });
 
                 QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
+                    L.e(inductionLineBeans.toString());
                     controlUiRefresh.setLineWidgetStatus(inductionLineBeans);
+
+                    // 根据感应线状态拍摄图片
+                    String signalValue = inductionLineBeans.get(1).getSignalValue();
+                    int i = Integer.parseInt(signalValue);
+                    if (i == 1 && isOpen) {
+                        // 有车压线
+                        identifyTheLicensePlate();
+                    }
                 });
             }
         };
         timer.schedule(task, 0, 100);
+    }
+
+    /**
+     * 识别车牌号
+     */
+    private void identifyTheLicensePlate() {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonStr);
+            int deviceId = jsonObject.optInt("deviceId");
+            int cameraNum = jsonObject.optInt("cameraNum");
+            if (deviceId == this.deviceId && cameraNum == this.cameraNum) {
+                // 判断当当前摄像头的数据是否是切花后摄像头的数据
+                // 开始获取摄像头中的数据
+                isOpen = false;
+                NumberPlateORC.getNumberPlate(bitmap, (String numberPlate) -> {
+                    if (!TextUtils.isEmpty(numberPlate)) {
+                        updateBarrier(barrierId, true);
+                    } else {
+                        // 如果没有识别成功则重新识别
+                        identifyTheLicensePlate();
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     interface ControlUiRefresh extends BaseUiRefresh {

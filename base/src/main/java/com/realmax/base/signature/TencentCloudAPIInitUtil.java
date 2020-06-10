@@ -135,7 +135,7 @@ public class TencentCloudAPIInitUtil {
      * @return 返回拼接好的字符串
      */
     private static String getStringToSign(TreeMap<String, Object> params) {
-        StringBuilder s2s = new StringBuilder("POSTiai.tencentcloudapi.com/?");
+        StringBuilder s2s = new StringBuilder("POSTocr.tencentcloudapi.com/?");
         // 签名时要求对参数进行字典排序，此处用TreeMap保证顺序
         for (String k : params.keySet()) {
             s2s.append(k).append("=").append(params.get(k).toString()).append("&");

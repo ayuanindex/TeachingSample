@@ -105,7 +105,6 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      */
     public void updateBarrier(int barrierId, boolean isChecked) {
         controlLogic.updateBarrier(barrierId, isChecked);
-
     }
 
     /**
