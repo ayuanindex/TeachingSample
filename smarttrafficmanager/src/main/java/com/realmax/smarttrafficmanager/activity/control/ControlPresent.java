@@ -117,6 +117,11 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
         controlLogic.getInductionLine(entryId, outId);
     }
 
+    /**
+     * 设置感应线状态
+     *
+     * @param inductionLineBeans 感应线集合
+     */
     @Override
     public void setLineWidgetStatus(ArrayList<InductionLineBean> inductionLineBeans) {
         int entryStatus = Integer.parseInt(inductionLineBeans.get(0).getSignalValue());
@@ -127,7 +132,7 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
     /**
      * 设置车牌号
      *
-     * @param numberPlate
+     * @param numberPlate 识别出的车牌号
      */
     @Override
     public void setNumberPlate(String numberPlate) {

@@ -188,7 +188,7 @@ public class ControlLogic extends BaseLogic {
     /**
      * 识别车牌号
      *
-     * @param controlUiRefresh
+     * @param controlUiRefresh 回调
      */
     private void identifyTheLicensePlate(ControlUiRefresh controlUiRefresh) {
         try {
@@ -240,7 +240,7 @@ public class ControlLogic extends BaseLogic {
         /**
          * 设置车牌奥
          *
-         * @param numberPlate
+         * @param numberPlate 识别出的车牌号
          */
         void setNumberPlate(String numberPlate);
     }
