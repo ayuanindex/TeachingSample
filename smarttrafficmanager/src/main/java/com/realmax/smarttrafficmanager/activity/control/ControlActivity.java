@@ -66,28 +66,28 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
             switch (checkedId) {
                 case R.id.rbSouthEnter:
                     // 南进
-                    controlPresent.switchCamera("ETC收费站", 1, 2);
+                    controlPresent.switchCamera("ETC收费站", 2, 1);
                     barrierId = SOUTH_ENTRY;
                     entryId = 17;
                     outId = 18;
                     break;
                 case R.id.rbSouthOut:
                     // 南出
-                    controlPresent.switchCamera("ETC收费站", 1, 1);
+                    controlPresent.switchCamera("ETC收费站", 2, 2);
                     barrierId = SOUTH_OUT;
                     entryId = 19;
                     outId = 20;
                     break;
                 case R.id.rbNorthEnter:
                     // 北进
-                    controlPresent.switchCamera("ETC收费站", 2, 1);
+                    controlPresent.switchCamera("ETC收费站", 1, 2);
                     barrierId = NORTH_ENTRY;
                     entryId = 21;
                     outId = 22;
                     break;
                 case R.id.rbNorthOut:
                     // 北出
-                    controlPresent.switchCamera("ETC收费站", 2, 2);
+                    controlPresent.switchCamera("ETC收费站", 1, 1);
                     barrierId = NORTH_OUT;
                     entryId = 23;
                     outId = 24;
@@ -129,5 +129,10 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     public void setLineWidgetStatus(int entryStatus, int outStatus) {
         cbEnterLine.setChecked(entryStatus == 1);
         cbOutLine.setChecked(outStatus == 1);
+    }
+
+    @Override
+    public void setNumberPlate(String numberPlate) {
+        tvNumberPlate.setText(numberPlate);
     }
 }

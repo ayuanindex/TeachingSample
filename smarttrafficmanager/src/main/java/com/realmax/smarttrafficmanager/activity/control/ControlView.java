@@ -36,4 +36,6 @@ public interface ControlView {
      * @param outStatus   出口出车状态
      */
     void setLineWidgetStatus(int entryStatus, int outStatus);
+
+    void setNumberPlate(String numberPlate);
 }

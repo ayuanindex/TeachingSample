@@ -70,7 +70,9 @@ public class HttpUtil {
         call.enqueue(new Callback() {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                T t = new Gson().fromJson(Objects.requireNonNull(response.body()).string(), tClass);
+                String string = Objects.requireNonNull(response.body()).string();
+                L.e(string);
+                T t = new Gson().fromJson(string, tClass);
                 result.getData(t, call, response);
             }
 

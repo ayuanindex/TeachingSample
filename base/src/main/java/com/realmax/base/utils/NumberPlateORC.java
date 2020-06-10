@@ -26,8 +26,10 @@ public class NumberPlateORC {
                 HttpUtil.doPost(init, NumberPlateResultBean.class, new HttpUtil.Result<NumberPlateResultBean>() {
                     @Override
                     public void getData(NumberPlateResultBean numberPlateResultBean, Call call, Response response) {
-                        numberPlateResult.resultNumberPlate(numberPlateResultBean.getResponse().getNumber());
-                        L.e("请求成功--------" + numberPlateResultBean.toString());
+                        if (numberPlateResult != null) {
+                            L.e("请求成功--------" + numberPlateResultBean.toString());
+                            numberPlateResult.resultNumberPlate(numberPlateResultBean.getResponse().getNumber());
+                        }
                     }
 
                     @Override

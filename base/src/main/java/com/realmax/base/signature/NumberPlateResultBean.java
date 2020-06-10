@@ -6,7 +6,7 @@ import com.realmax.base.network.HttpUtil;
 public class NumberPlateResultBean {
 
     /**
-     * Response : {"Number":"京N0L9U8","Confidence":99,"RequestId":"210103d3-db06-4691-abe0-c0853aae606b"}
+     * Response : {"Number":"京N0L9U8","Confidence":99,"Error":{"Code":"FailedOperation.OcrFailed","Message":"Ocr识别失败"},"RequestId":"210103d3-db06-4691-abe0-c0853aae606b"}
      */
 
     private ResponseBean Response;
@@ -23,11 +23,13 @@ public class NumberPlateResultBean {
         /**
          * Number : 京N0L9U8
          * Confidence : 99
+         * Error : {"Code":"FailedOperation.OcrFailed","Message":"Ocr识别失败"}
          * RequestId : 210103d3-db06-4691-abe0-c0853aae606b
          */
 
         private String Number;
         private int Confidence;
+        private ErrorBean Error;
         private String RequestId;
 
         public String getNumber() {
@@ -46,6 +48,14 @@ public class NumberPlateResultBean {
             this.Confidence = Confidence;
         }
 
+        public ErrorBean getError() {
+            return Error;
+        }
+
+        public void setError(ErrorBean Error) {
+            this.Error = Error;
+        }
+
         public String getRequestId() {
             return RequestId;
         }
@@ -54,11 +64,46 @@ public class NumberPlateResultBean {
             this.RequestId = RequestId;
         }
 
+        public static class ErrorBean {
+            /**
+             * Code : FailedOperation.OcrFailed
+             * Message : Ocr识别失败
+             */
+
+            private String Code;
+            private String Message;
+
+            public String getCode() {
+                return Code;
+            }
+
+            public void setCode(String Code) {
+                this.Code = Code;
+            }
+
+            public String getMessage() {
+                return Message;
+            }
+
+            public void setMessage(String Message) {
+                this.Message = Message;
+            }
+
+            @Override
+            public String toString() {
+                return "ErrorBean{" +
+                        "Code='" + Code + '\'' +
+                        ", Message='" + Message + '\'' +
+                        '}';
+            }
+        }
+
         @Override
         public String toString() {
             return "ResponseBean{" +
                     "Number='" + Number + '\'' +
                     ", Confidence=" + Confidence +
+                    ", Error=" + Error +
                     ", RequestId='" + RequestId + '\'' +
                     '}';
         }

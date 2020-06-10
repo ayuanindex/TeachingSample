@@ -20,6 +20,7 @@ import org.json.JSONObject;
 public class MainLogic extends BaseLogic {
 
     private WeatherBean weatherBean;
+    private boolean flag = false;
 
     /**
      * 获取天气
@@ -37,12 +38,15 @@ public class MainLogic extends BaseLogic {
 
                 @Override
                 public void getResultData(String msg) {
-                    L.e(msg);
-                    retrieveData(msg, mainUiRefresh);
+                    if (flag) {
+                        L.e(msg);
+                        retrieveData(msg, mainUiRefresh);
+                    }
                 }
             });
         }
 
+        flag = true;
         NettyControl.sendWeatherCmd();
     }
 
@@ -58,6 +62,7 @@ public class MainLogic extends BaseLogic {
             if ("ans".equals(jsonObject.optString("cmd"))) {
                 weatherBean = new Gson().fromJson(msg, WeatherBean.class);
                 mainUiRefresh.setWeather(weatherBean);
+                flag = false;
             }
         } catch (JSONException e) {
             e.printStackTrace();

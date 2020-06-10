@@ -49,7 +49,7 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      * 发送查看虚拟摄像头命令
      */
     private void startCamera() {
-        controlLogic.startCamera(ETC, 1, 2, this);
+        controlLogic.startCamera(ETC, 2, 1, this);
     }
 
     @Override
@@ -122,5 +122,20 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
         int entryStatus = Integer.parseInt(inductionLineBeans.get(0).getSignalValue());
         int outStatus = Integer.parseInt(inductionLineBeans.get(1).getSignalValue());
         switchToMainThread(() -> controlView.setLineWidgetStatus(entryStatus, outStatus));
+    }
+
+    /**
+     * 设置车牌号
+     *
+     * @param numberPlate
+     */
+    @Override
+    public void setNumberPlate(String numberPlate) {
+        switchToMainThread(new Runnable() {
+            @Override
+            public void run() {
+                controlView.setNumberPlate(numberPlate);
+            }
+        });
     }
 }

@@ -42,6 +42,7 @@ public class ControlLogic extends BaseLogic {
     private int cameraNum;
     private String jsonStr;
     private boolean isOpen = true;
+    private boolean flag = false;
 
     /**
      * 发送查看虚拟摄像头的命令
@@ -157,15 +158,26 @@ public class ControlLogic extends BaseLogic {
                 });
 
                 QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
-                    L.e(inductionLineBeans.toString());
+                    /*L.e(inductionLineBeans.toString());*/
                     controlUiRefresh.setLineWidgetStatus(inductionLineBeans);
 
                     // 根据感应线状态拍摄图片
-                    String signalValue = inductionLineBeans.get(1).getSignalValue();
+                    String signalValue = inductionLineBeans.get(0).getSignalValue();
+                    String signalValue1 = inductionLineBeans.get(1).getSignalValue();
                     int i = Integer.parseInt(signalValue);
-                    if (i == 1 && isOpen) {
+                    int i1 = Integer.parseInt(signalValue1);
+                    if (i == 1) {
+                        L.e("开始进行车牌识别");
+                        flag = true;
+                    } else if (i1 == 1) {
+                        L.e("车牌识别结束");
+                        flag = false;
+                        isOpen = true;
+                    }
+
+                    if (isOpen && flag) {
                         // 有车压线
-                        identifyTheLicensePlate();
+                        identifyTheLicensePlate(controlUiRefresh);
                     }
                 });
             }
@@ -175,8 +187,10 @@ public class ControlLogic extends BaseLogic {
 
     /**
      * 识别车牌号
+     *
+     * @param controlUiRefresh
      */
-    private void identifyTheLicensePlate() {
+    private void identifyTheLicensePlate(ControlUiRefresh controlUiRefresh) {
         try {
             JSONObject jsonObject = new JSONObject(jsonStr);
             int deviceId = jsonObject.optInt("deviceId");
@@ -188,9 +202,10 @@ public class ControlLogic extends BaseLogic {
                 NumberPlateORC.getNumberPlate(bitmap, (String numberPlate) -> {
                     if (!TextUtils.isEmpty(numberPlate)) {
                         updateBarrier(barrierId, true);
+                        controlUiRefresh.setNumberPlate(numberPlate);
+                        isOpen = false;
                     } else {
-                        // 如果没有识别成功则重新识别
-                        identifyTheLicensePlate();
+                        isOpen = true;
                     }
                 });
             }
@@ -221,5 +236,12 @@ public class ControlLogic extends BaseLogic {
          * @param inductionLineBeans 感应下集合
          */
         void setLineWidgetStatus(ArrayList<InductionLineBean> inductionLineBeans);
+
+        /**
+         * 设置车牌奥
+         *
+         * @param numberPlate
+         */
+        void setNumberPlate(String numberPlate);
     }
 }
