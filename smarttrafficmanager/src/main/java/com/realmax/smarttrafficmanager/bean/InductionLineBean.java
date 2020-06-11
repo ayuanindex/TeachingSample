@@ -20,6 +20,9 @@ public class InductionLineBean {
     private String signalType;
     private String signalValue;
 
+    public InductionLineBean() {
+    }
+
     public InductionLineBean(int id) {
         this.id = id;
     }

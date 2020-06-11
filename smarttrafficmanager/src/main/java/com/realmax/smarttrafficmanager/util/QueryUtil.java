@@ -139,6 +139,33 @@ public class QueryUtil {
     }
 
     /**
+     * 查询所有感应线的状态
+     *
+     * @param inductionLineBeans 感应线集合
+     * @param result             回调
+     */
+    public static void queryAllInductionLine(ArrayList<InductionLineBean> inductionLineBeans, Result result) {
+        try {
+            Connection drivingConn = DbOpenhelper.getDrivingConn();
+            PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (17,18,19,20,21,22,23,24);");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                InductionLineBean inductionLineBean = new InductionLineBean();
+                inductionLineBean.setId(resultSet.getInt("id"));
+                inductionLineBean.setSignalName(resultSet.getString("signal_name"));
+                inductionLineBean.setSignalText(resultSet.getString("signal_text"));
+                inductionLineBean.setSignalType(resultSet.getString("signal_type"));
+                inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
+                inductionLineBeans.add(inductionLineBean);
+            }
+            result.success(inductionLineBeans);
+            DbOpenhelper.closeAll(preparedStatement, resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 插入一条停车数据
      *
      * @param numberPlate      车牌号

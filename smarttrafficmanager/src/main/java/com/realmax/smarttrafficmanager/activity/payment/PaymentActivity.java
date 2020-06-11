@@ -1,6 +1,10 @@
 package com.realmax.smarttrafficmanager.activity.payment;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -9,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.card.MaterialCardView;
 import com.realmax.smarttrafficmanager.R;
+import com.realmax.smarttrafficmanager.activity.control.ControlActivity;
 
 /**
  * @author ayuan
@@ -21,6 +26,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentView {
     private TextView tvCost;
     private TextView tvPaymentStatus;
     private MaterialCardView cardManualControl;
+    private PaymentPresent paymentPresent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,15 +48,41 @@ public class PaymentActivity extends AppCompatActivity implements PaymentView {
     }
 
     private void initListener() {
-
+        cardManualControl.setOnClickListener((View v) -> {
+            startActivity(new Intent(this, ControlActivity.class));
+            finish();
+        });
     }
 
     private void initData() {
+        paymentPresent = new PaymentPresent(this, new PaymentLogic());
 
+        paymentPresent.init();
     }
 
     @Override
     public AppCompatActivity getActivity() {
         return this;
+    }
+
+    /**
+     * 设置图片到控件中
+     *
+     * @param bitmap 图片
+     */
+    @Override
+    public void setImage(Bitmap bitmap) {
+        ivImage.setImageBitmap(bitmap);
+    }
+
+    /**
+     * 设置车牌号
+     *
+     * @param numberPlate 车牌号
+     */
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void setNumberPlate(String numberPlate) {
+        tvNumberPlate.setText("车牌号：" + numberPlate);
     }
 }
