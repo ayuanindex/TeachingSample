@@ -1,13 +1,16 @@
 package com.realmax.smarttrafficmanager.activity.control;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.gson.Gson;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
+import com.realmax.base.ftp.FTPUtil;
 import com.realmax.base.utils.EncodeAndDecode;
 import com.realmax.base.utils.L;
 import com.realmax.base.utils.NumberPlateORC;
@@ -16,12 +19,17 @@ import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
 import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
 import com.realmax.smarttrafficmanager.bean.BarrierBean;
 import com.realmax.smarttrafficmanager.bean.InductionLineBean;
+import com.realmax.smarttrafficmanager.bean.WeatherBean;
 import com.realmax.smarttrafficmanager.util.QueryUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,6 +51,16 @@ public class ControlLogic extends BaseLogic {
     private String jsonStr;
     private boolean isOpen = true;
     private boolean flag = false;
+    private Bitmap numberPlateBitmap;
+    private String numberPlate;
+    private String imageUrl = "http://driving.zuto360.com/upload/";
+    /**
+     * 2020-03-31 00:00:00.0
+     */
+    @SuppressLint("SimpleDateFormat")
+    private static SimpleDateFormat uploadDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @SuppressLint("SimpleDateFormat")
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * 发送查看虚拟摄像头的命令
@@ -92,12 +110,61 @@ public class ControlLogic extends BaseLogic {
                     bitmap = EncodeAndDecode.base64ToImage(imageData);
                     jsonStr = msg;
                     controlUiRefresh.setImageData(bitmap);
+                } else if ("ans".equals(jsonObject.optString("cmd"))) {
+                    WeatherBean weatherBean = new Gson().fromJson(msg, WeatherBean.class);
+                    L.e("拿到虚拟场景的环境信息-------------" + weatherBean.toString());
+                    upload(weatherBean, controlUiRefresh);
                 }
             }
         } catch (JSONException e) {
             String substring = msg.substring(1);
             getImageData(substring, controlUiRefresh);
             L.e("json数据异常");
+        }
+    }
+
+    /**
+     * 上传
+     *
+     * @param weatherBean      环境数据
+     * @param controlUiRefresh 回调
+     */
+    private void upload(WeatherBean weatherBean, ControlUiRefresh controlUiRefresh) {
+        try {
+            // 获取当前系统的年月日
+            Date date = new Date();
+            String currentTime = simpleDateFormat.format(date);
+            currentTime += weatherBean.getTime();
+            // 上传图片
+            FTPUtil ftpUtil = new FTPUtil();
+            ftpUtil.openConnect();
+            String finalCurrentTime = currentTime;
+            ftpUtil.compressImage(numberPlateBitmap, String.valueOf(date.getTime()), (File file) -> {
+                // 转换成功
+                boolean uploading = ftpUtil.uploading(file, String.valueOf(date.getTime()));
+                L.e("上传状态----------" + uploading);
+                if (uploading) {
+                    if (file != null) {
+                        file.delete();
+                    }
+                    // 拼接地址
+                    imageUrl += date.getTime();
+                    // 查询当前车牌是否已经有停车记录
+                    QueryUtil.queryNumberPlate(numberPlate, (Object object) -> {
+                        boolean doesItExist = (boolean) object;
+                        if (doesItExist) {
+                            // 更新
+                            QueryUtil.updateParkingRecords(numberPlate, finalCurrentTime, imageUrl, (Object success) -> {
+                            });
+                        } else {
+                            // 新增停车记录
+                            QueryUtil.insertParkingRecords(numberPlate, finalCurrentTime, imageUrl);
+                        }
+                    });
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -201,9 +268,15 @@ public class ControlLogic extends BaseLogic {
                 isOpen = false;
                 NumberPlateORC.getNumberPlate(bitmap, (String numberPlate) -> {
                     if (!TextUtils.isEmpty(numberPlate)) {
-                        updateBarrier(barrierId, true);
-                        controlUiRefresh.setNumberPlate(numberPlate);
                         isOpen = false;
+                        numberPlateBitmap = bitmap;
+                        this.numberPlate = numberPlate;
+                        // 将车牌刷新到界面上
+                        controlUiRefresh.setNumberPlate(numberPlate);
+                        // 修改道闸状态
+                        updateBarrier(barrierId, true);
+                        // 获取当前虚拟场景的时间
+                        NettyControl.sendWeatherCmd();
                     } else {
                         isOpen = true;
                     }

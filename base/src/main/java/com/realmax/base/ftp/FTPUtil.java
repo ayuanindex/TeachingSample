@@ -175,7 +175,7 @@ public class FTPUtil {
      * @param bitmap 需要转换的bitmap
      */
     @SuppressLint("SimpleDateFormat")
-    public static File compressImage(Bitmap bitmap, String filename, Result result) {
+    public File compressImage(Bitmap bitmap, String filename, Result result) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中

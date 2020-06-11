@@ -136,13 +136,115 @@ public class QueryUtil {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
-
-        /*CustomerThread.poolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
+    /**
+     * 插入一条停车数据
+     *
+     * @param numberPlate      车牌号
+     * @param finalCurrentTime 当前时间
+     * @param imageUrl         上传后的图片地址
+     */
+    public static void insertParkingRecords(String numberPlate, String finalCurrentTime, String imageUrl) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                String sql = "INSERT INTO driving.car_information (" +
+                        "car_num," +
+                        " begin_time," +
+                        " comment," +
+                        " startImage," +
+                        ") VALUES (?,?,?,?);";
+                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                preparedStatement.setString(1, numberPlate);
+                preparedStatement.setString(2, finalCurrentTime);
+                preparedStatement.setString(3, "0");
+                preparedStatement.setString(4, imageUrl);
+                int i = preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        });*/
+        });
+    }
+
+    /**
+     * 查询你对应车牌号的停车记录
+     *
+     * @param numberPlate 车牌号
+     */
+    public static void queryNumberPlate(String numberPlate, Result result) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?");
+                preparedStatement.setString(1, numberPlate);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                resultSet.last();
+                int count = resultSet.getRow();
+                if (count > 0) {
+                    // 查询到了当前车牌号的数据
+                    result.success(true);
+                } else {
+                    // 没有查询到当前车牌号的数据，则插入一行数据
+                    result.success(false);
+                }
+                DbOpenhelper.closeAll(preparedStatement, resultSet);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 更新停车记录
+     *
+     * @param numberPlate      车牌号
+     * @param finalCurrentTime 当前说时间
+     * @param imageUrl         上传后图片的URL地址
+     * @param result           回调
+     */
+    public static void updateParkingRecords(String numberPlate, String finalCurrentTime, String imageUrl, Result result) {
+        queryParkingRecord(numberPlate, (Object object) -> {
+            try {
+                String flag = (String) object;
+                // 创建sql语句
+                String sql = "";
+                if ("0".equals(flag)) {
+                    // 记录开始状态
+                    sql = "update car_information set begin_time=?,startImage=?,comment='1' where numberplate=?";
+                } else if ("1".equals(flag)) {
+                    // 记录结束状态
+                    sql = "update car_information set end_time=?,endImage=?,comment='0' where numberplate=?";
+                }
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                preparedStatement.setString(1, finalCurrentTime);
+                preparedStatement.setString(2, imageUrl);
+                preparedStatement.setString(3, numberPlate);
+                int i = preparedStatement.executeUpdate();
+                result.success(i > 0);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private static void queryParkingRecord(String numberPlate, Result result) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?");
+                preparedStatement.setString(1, numberPlate);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    String comment = resultSet.getString("comment");
+                    result.success(comment);
+                    DbOpenhelper.closeAll(preparedStatement, resultSet);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public interface Result {
