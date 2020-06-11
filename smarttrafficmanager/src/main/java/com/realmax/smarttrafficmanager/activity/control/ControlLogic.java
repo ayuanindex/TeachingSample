@@ -53,7 +53,6 @@ public class ControlLogic extends BaseLogic {
     private boolean flag = false;
     private Bitmap numberPlateBitmap;
     private String numberPlate;
-    private String imageUrl = "http://driving.zuto360.com/upload/";
     /**
      * 2020-03-31 00:00:00.0
      */
@@ -148,7 +147,7 @@ public class ControlLogic extends BaseLogic {
                         file.delete();
                     }
                     // 拼接地址
-                    imageUrl += date.getTime();
+                    String imageUrl = "http://driving.zuto360.com/upload/" + date.getTime() + ".png";
                     // 查询当前车牌是否已经有停车记录
                     QueryUtil.queryNumberPlate(numberPlate, (Object object) -> {
                         boolean doesItExist = (boolean) object;

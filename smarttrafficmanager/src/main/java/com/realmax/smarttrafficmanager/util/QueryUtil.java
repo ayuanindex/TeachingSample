@@ -158,7 +158,7 @@ public class QueryUtil {
                 PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
                 preparedStatement.setString(1, numberPlate);
                 preparedStatement.setString(2, finalCurrentTime);
-                preparedStatement.setString(3, "0");
+                preparedStatement.setString(3, "1");
                 preparedStatement.setString(4, imageUrl);
                 int i = preparedStatement.executeUpdate();
             } catch (SQLException e) {

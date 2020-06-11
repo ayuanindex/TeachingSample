@@ -21,7 +21,7 @@ public class NumberPlateORC {
                 params.put("Action", "LicensePlateOCR");
                 params.put("Version", "2018-11-19");
                 params.put("Region", "ap-shanghai");
-                params.put("ImageBase64", EncodeAndDecode.bitmapToBase64(compressMatrix(bitmap)));
+                params.put("ImageBase64", EncodeAndDecode.bitmapToBase64(bitmap));
                 TreeMap<String, Object> init = TencentCloudAPIInitUtil.init(params);
                 HttpUtil.doPost(init, NumberPlateResultBean.class, new HttpUtil.Result<NumberPlateResultBean>() {
                     @Override
