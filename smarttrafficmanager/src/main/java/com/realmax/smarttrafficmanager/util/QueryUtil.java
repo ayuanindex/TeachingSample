@@ -153,7 +153,7 @@ public class QueryUtil {
                         "car_num," +
                         " begin_time," +
                         " comment," +
-                        " startImage," +
+                        " startImage" +
                         ") VALUES (?,?,?,?);";
                 PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
                 preparedStatement.setString(1, numberPlate);
@@ -211,10 +211,10 @@ public class QueryUtil {
                 String sql = "";
                 if ("0".equals(flag)) {
                     // 记录开始状态
-                    sql = "update car_information set begin_time=?,startImage=?,comment='1' where numberplate=?";
+                    sql = "update car_information set begin_time=?,startImage=?,comment='1' where car_num=?";
                 } else if ("1".equals(flag)) {
                     // 记录结束状态
-                    sql = "update car_information set end_time=?,endImage=?,comment='0' where numberplate=?";
+                    sql = "update car_information set end_time=?,endImage=?,comment='0' where car_num=?";
                 }
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
                 PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
@@ -236,11 +236,12 @@ public class QueryUtil {
                 PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?");
                 preparedStatement.setString(1, numberPlate);
                 ResultSet resultSet = preparedStatement.executeQuery();
+                String comment = "";
                 while (resultSet.next()) {
-                    String comment = resultSet.getString("comment");
-                    result.success(comment);
-                    DbOpenhelper.closeAll(preparedStatement, resultSet);
+                    comment = resultSet.getString("comment");
                 }
+                result.success(comment);
+                DbOpenhelper.closeAll(preparedStatement, resultSet);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

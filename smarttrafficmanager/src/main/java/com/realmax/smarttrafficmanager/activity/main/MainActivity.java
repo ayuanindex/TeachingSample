@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.card.MaterialCardView;
@@ -107,6 +108,12 @@ public class MainActivity extends AppCompatActivity implements MainView {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy,MM,dd");
         String dateStr = simpleDateFormat.format(new Date());
         tvDate.setText(dateStr);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        mainPresent.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

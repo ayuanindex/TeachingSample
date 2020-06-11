@@ -134,7 +134,7 @@ public class ControlLogic extends BaseLogic {
             // 获取当前系统的年月日
             Date date = new Date();
             String currentTime = simpleDateFormat.format(date);
-            currentTime += weatherBean.getTime();
+            currentTime = currentTime + " " + weatherBean.getTime();
             // 上传图片
             FTPUtil ftpUtil = new FTPUtil();
             ftpUtil.openConnect();

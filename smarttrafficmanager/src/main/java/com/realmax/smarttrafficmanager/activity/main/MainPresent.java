@@ -1,11 +1,18 @@
 package com.realmax.smarttrafficmanager.activity.main;
 
+import android.Manifest;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.realmax.base.utils.L;
 import com.realmax.smarttrafficmanager.bean.WeatherBean;
+
+import org.apache.commons.net.nntp.NewGroupsOrNewsQuery;
+
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 
 /**
  * @author ayuan
@@ -24,7 +31,13 @@ public class MainPresent implements MainLogic.MainUiRefresh {
 
     public void initData() {
         getWeather();
+        requestPermission(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE});
     }
+
+    private void requestPermission(String[] permissions) {
+        mainView.getActivity().requestPermissions(permissions, 1000);
+    }
+
 
     private void getWeather() {
         mainLogic.getWeather(this);
@@ -67,5 +80,20 @@ public class MainPresent implements MainLogic.MainUiRefresh {
                 mainView.setWeather(weatherBean, mainLogic.getWeatherIcon(weatherBean, MainPresent.this));
             }
         });
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 1000) {
+            ArrayList<String> permissionList = new ArrayList<>();
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] < 0) {
+                    permissionList.add(permissions[i]);
+                }
+            }
+            if (permissionList.size() > 0) {
+                String[] strings = permissionList.toArray(new String[]{});
+                requestPermission(strings);
+            }
+        }
     }
 }
