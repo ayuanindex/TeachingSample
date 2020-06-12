@@ -1,7 +1,5 @@
 package com.realmax.smarttrafficmanager.util;
 
-import android.annotation.SuppressLint;
-
 import com.realmax.base.jdbcConnect.DbOpenhelper;
 import com.realmax.base.utils.CustomerThread;
 import com.realmax.base.utils.L;
@@ -14,19 +12,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
  * @author ayuan
  */
 public class QueryUtil {
-    /**
-     * 2020-03-31 00:00:00.0
-     */
-    @SuppressLint("SimpleDateFormat")
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     public static void queryParking(ArrayList<ParkingBean> parkingBeans, Result result) {
         CustomerThread.poolExecutor.execute(() -> {
             try {
@@ -88,22 +79,19 @@ public class QueryUtil {
      * @param result    回调
      */
     public static void updateBarrierStatus(int barrierId, int i, Result result) {
-        CustomerThread.poolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Connection drivingConn = DbOpenhelper.getDrivingConn();
-                    String sql = "update signal_info set signal_value=? where id = ?";
-                    PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
-                    preparedStatement.setString(1, String.valueOf(i));
-                    preparedStatement.setInt(2, barrierId);
-                    int update = preparedStatement.executeUpdate();
-                    L.e(update + "哈哈");
-                    result.success(1);
-                    DbOpenhelper.closeAll(preparedStatement);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                String sql = "update signal_info set signal_value=? where id = ?";
+                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                preparedStatement.setString(1, String.valueOf(i));
+                preparedStatement.setInt(2, barrierId);
+                int update = preparedStatement.executeUpdate();
+                L.e(update + "哈哈");
+                result.success(1);
+                DbOpenhelper.closeAll(preparedStatement);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -190,7 +178,8 @@ public class QueryUtil {
                 preparedStatement.setString(3, "1");
                 preparedStatement.setString(4, "未缴费");
                 preparedStatement.setString(5, imageUrl);
-                int i = preparedStatement.executeUpdate();
+                preparedStatement.executeUpdate();
+                DbOpenhelper.closeAll(preparedStatement);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -282,7 +271,7 @@ public class QueryUtil {
      * 根据车牌号查询当前车辆的停车记录
      *
      * @param numberPlate 车牌号
-     * @param result
+     * @param result      回调
      */
     public static void queryParkingRecording(String numberPlate, Result result) {
         CustomerThread.poolExecutor.execute(() -> {

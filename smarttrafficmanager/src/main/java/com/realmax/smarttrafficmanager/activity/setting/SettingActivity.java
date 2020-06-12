@@ -18,7 +18,6 @@ public class SettingActivity extends AppCompatActivity implements SettingView {
     private EditText etIp;
     private EditText etPort;
     private MaterialCardView cardConnect;
-    private SettingLogic settingLogic;
     private SettingPresent settingPresent;
     private MaterialTextView tvText;
 
@@ -39,13 +38,11 @@ public class SettingActivity extends AppCompatActivity implements SettingView {
     }
 
     private void initListener() {
-        cardConnect.setOnClickListener((View v) -> {
-            settingPresent.connectVirtualScene(etIp.getText().toString().trim(), etPort.getText().toString().trim());
-        });
+        cardConnect.setOnClickListener((View v) -> settingPresent.connectVirtualScene(etIp.getText().toString().trim(), etPort.getText().toString().trim()));
     }
 
     private void initData() {
-        settingLogic = new SettingLogic();
+        SettingLogic settingLogic = new SettingLogic();
         settingPresent = new SettingPresent(this, settingLogic);
 
         settingPresent.initData();

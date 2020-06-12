@@ -6,12 +6,8 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.realmax.base.utils.L;
 import com.realmax.smarttrafficmanager.bean.WeatherBean;
 
-import org.apache.commons.net.nntp.NewGroupsOrNewsQuery;
-
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 /**
@@ -26,6 +22,7 @@ public class MainPresent implements MainLogic.MainUiRefresh {
     public MainPresent(MainView mainView, MainLogic mainLogic) {
         this.mainView = mainView;
         this.mainLogic = mainLogic;
+        mainLogic.setMainUiRefresh(this);
         uiHandler = new Handler(Looper.getMainLooper());
     }
 
@@ -40,7 +37,7 @@ public class MainPresent implements MainLogic.MainUiRefresh {
 
 
     private void getWeather() {
-        mainLogic.getWeather(this);
+        mainLogic.getWeather();
     }
 
     /**
@@ -77,7 +74,7 @@ public class MainPresent implements MainLogic.MainUiRefresh {
     public void setWeather(WeatherBean weatherBean) {
         switchToMainThread(() -> {
             if (mainView != null) {
-                mainView.setWeather(weatherBean, mainLogic.getWeatherIcon(weatherBean, MainPresent.this));
+                mainView.setWeather(weatherBean, mainLogic.getWeatherIcon(weatherBean));
             }
         });
     }

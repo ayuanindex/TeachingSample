@@ -15,8 +15,6 @@ import com.google.android.material.card.MaterialCardView;
 import com.realmax.smarttrafficmanager.R;
 import com.realmax.smarttrafficmanager.activity.control.ControlActivity;
 
-import java.text.SimpleDateFormat;
-
 /**
  * @author ayuan
  */
@@ -29,8 +27,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentView {
     private TextView tvPaymentStatus;
     private MaterialCardView cardManualControl;
     private PaymentPresent paymentPresent;
-    @SuppressLint("SimpleDateFormat")
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,5 +99,11 @@ public class PaymentActivity extends AppCompatActivity implements PaymentView {
         tvPlayingTime.setText("出场时间：" + end);
         tvCost.setText("需缴费：" + pay + "元");
         tvPaymentStatus.setText("缴费状态：" + paymentAmount);
+    }
+
+    @Override
+    protected void onDestroy() {
+        paymentPresent.onDestroy();
+        super.onDestroy();
     }
 }

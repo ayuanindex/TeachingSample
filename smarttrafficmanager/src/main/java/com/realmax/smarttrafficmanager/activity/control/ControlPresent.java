@@ -24,6 +24,7 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
     public ControlPresent(ControlView controlView, ControlLogic controlLogic) {
         this.controlView = controlView;
         this.controlLogic = controlLogic;
+        controlLogic.setControlUiRefresh(this);
         uiHandler = new Handler(Looper.getMainLooper());
     }
 
@@ -42,14 +43,14 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      * 开启出入口的循环检测
      */
     private void getEntranceStatus() {
-        controlLogic.getEntranceStatus(this);
+        controlLogic.getEntranceStatus();
     }
 
     /**
      * 发送查看虚拟摄像头命令
      */
     private void startCamera() {
-        controlLogic.startCamera(ETC, 2, 1, this);
+        controlLogic.startCamera(ETC, 2, 1);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      * @param cameraNum  摄像头编号
      */
     public void switchCamera(String deviceType, int deviceId, int cameraNum) {
-        controlLogic.startCamera(deviceType, deviceId, cameraNum, this);
+        controlLogic.startCamera(deviceType, deviceId, cameraNum);
     }
 
     /**
@@ -136,11 +137,11 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
      */
     @Override
     public void setNumberPlate(String numberPlate) {
-        switchToMainThread(new Runnable() {
-            @Override
-            public void run() {
-                controlView.setNumberPlate(numberPlate);
-            }
-        });
+        switchToMainThread(() -> controlView.setNumberPlate(numberPlate));
+    }
+
+    @Override
+    public void onDestroy() {
+        controlLogic.onDestroy();
     }
 }

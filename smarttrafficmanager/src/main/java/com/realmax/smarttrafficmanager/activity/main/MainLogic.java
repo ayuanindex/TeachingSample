@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
+import com.realmax.base.tcp.CustomerCallback;
+import com.realmax.base.tcp.CustomerHandlerBase;
+import com.realmax.base.tcp.NettyControl;
 import com.realmax.base.utils.L;
 import com.realmax.smarttrafficmanager.R;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerCallback;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
-import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
 import com.realmax.smarttrafficmanager.bean.WeatherBean;
 
 import org.json.JSONException;
@@ -18,16 +18,13 @@ import org.json.JSONObject;
  * @author ayuan
  */
 public class MainLogic extends BaseLogic {
-
-    private WeatherBean weatherBean;
+    private MainUiRefresh mainUiRefresh;
     private boolean flag = false;
 
     /**
      * 获取天气
-     *
-     * @param mainUiRefresh 回调
      */
-    public void getWeather(MainUiRefresh mainUiRefresh) {
+    public void getWeather() {
         CustomerHandlerBase customerHandlerBase = NettyControl.getHandlerHashMap().get("Camera");
         if (customerHandlerBase != null) {
             customerHandlerBase.setCustomerCallback(new CustomerCallback() {
@@ -40,7 +37,7 @@ public class MainLogic extends BaseLogic {
                 public void getResultData(String msg) {
                     if (flag) {
                         L.e(msg);
-                        retrieveData(msg, mainUiRefresh);
+                        retrieveData(msg);
                     }
                 }
             });
@@ -53,21 +50,20 @@ public class MainLogic extends BaseLogic {
     /**
      * 获取数据并并显示
      *
-     * @param msg           服务端发送的消息
-     * @param mainUiRefresh 回调
+     * @param msg 服务端发送的消息
      */
-    private void retrieveData(String msg, MainUiRefresh mainUiRefresh) {
+    private void retrieveData(String msg) {
         try {
             JSONObject jsonObject = new JSONObject(msg);
             if ("ans".equals(jsonObject.optString("cmd"))) {
-                weatherBean = new Gson().fromJson(msg, WeatherBean.class);
+                WeatherBean weatherBean = new Gson().fromJson(msg, WeatherBean.class);
                 mainUiRefresh.setWeather(weatherBean);
                 flag = false;
             }
         } catch (JSONException e) {
             e.printStackTrace();
             String substring = msg.substring(1);
-            retrieveData(substring, mainUiRefresh);
+            retrieveData(substring);
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
         }
@@ -76,11 +72,10 @@ public class MainLogic extends BaseLogic {
     /**
      * 设置天气图标
      *
-     * @param weatherBean   天气数据
-     * @param mainUiRefresh 互调
+     * @param weatherBean 天气数据
      * @return 返回Drawable
      */
-    public int getWeatherIcon(WeatherBean weatherBean, MainUiRefresh mainUiRefresh) {
+    public int getWeatherIcon(WeatherBean weatherBean) {
         switch (weatherBean.getWeather()) {
             case "雷雨":
                 return R.drawable.pic_weather_leizhenyu;
@@ -91,6 +86,10 @@ public class MainLogic extends BaseLogic {
             default:
                 return R.drawable.pic_weather_na;
         }
+    }
+
+    public void setMainUiRefresh(MainUiRefresh mainUiRefresh) {
+        this.mainUiRefresh = mainUiRefresh;
     }
 
     interface MainUiRefresh extends BaseUiRefresh {

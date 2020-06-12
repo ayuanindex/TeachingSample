@@ -1,4 +1,4 @@
-package com.realmax.smarttrafficmanager.activity.tcp;
+package com.realmax.base.tcp;
 
 public interface CustomerCallback {
    /* void success(EventLoopGroup eventLoopGroup);*/

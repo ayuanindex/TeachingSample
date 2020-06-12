@@ -13,6 +13,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
+import com.realmax.base.utils.CustomerThread;
 import com.realmax.base.utils.SpUtil;
 
 /**
@@ -21,11 +22,12 @@ import com.realmax.base.utils.SpUtil;
 public class MainLogic extends BaseLogic {
 
     public static final String NUMBER_PLATE = "numberPlate";
+    private static MainUiRefresh mainUiRefresh;
 
     /**
      * 显示设置车牌号的Dialog
      */
-    public void showSetNumberPlateDialog(MainUiRefresh mainUiRefresh) {
+    public void showSetNumberPlateDialog() {
         AlertDialog alertDialog = getAlertDialog(mainUiRefresh);
         View inflate = View.inflate(mainUiRefresh.getActivity(), R.layout.dialog_setnumberplate, null);
         alertDialog.setView(inflate);
@@ -41,6 +43,8 @@ public class MainLogic extends BaseLogic {
             SpUtil.putString(NUMBER_PLATE, numberPlate);
             mainUiRefresh.showToast("设置成功");
             mainUiRefresh.setNumberPlate(numberPlate);
+            // 从数据库中查询当前车辆的停车记录
+
             alertDialog.dismiss();
         });
 
@@ -48,7 +52,7 @@ public class MainLogic extends BaseLogic {
         alertDialog.show();
     }
 
-    public void startPayment(MainUiRefresh mainUiRefresh) {
+    public void startPayment() {
         AlertDialog alertDialog = getAlertDialog(mainUiRefresh);
         View inflate = View.inflate(mainUiRefresh.getActivity(), R.layout.dialog_paymen, null);
         alertDialog.setView(inflate);
@@ -72,9 +76,18 @@ public class MainLogic extends BaseLogic {
     /**
      * 显示车牌号
      */
-    public void showNumberPlate(MainUiRefresh mainUiRefresh) {
+    public void showNumberPlate() {
         String numberPlate = SpUtil.getString(NUMBER_PLATE, "暂未设置车牌号");
         mainUiRefresh.setNumberPlate(numberPlate);
+    }
+
+    /**
+     * 连接虚拟场景
+     */
+    public void connectVirtualScene() {
+        CustomerThread.poolExecutor.execute(() -> {
+
+        });
     }
 
     interface MainUiRefresh extends BaseUiRefresh {
@@ -85,6 +98,15 @@ public class MainLogic extends BaseLogic {
          * @param numberPlate 车牌号
          */
         void setNumberPlate(String numberPlate);
+    }
+
+    /**
+     * 设置回调
+     *
+     * @param mainUiRefresh 回调
+     */
+    public void setMainUiRefresh(MainUiRefresh mainUiRefresh) {
+        MainLogic.mainUiRefresh = mainUiRefresh;
     }
 
     public static class NumberPlateViewHolder {

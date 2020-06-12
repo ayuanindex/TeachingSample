@@ -1,4 +1,4 @@
-package com.realmax.smarttrafficmanager.activity.tcp;
+package com.realmax.base.tcp;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -22,15 +21,10 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     private ImageView ivImage;
     private TextView tvNumberPlate;
     private RadioGroup rgSelect;
-    private RadioButton rbSouthEnter;
-    private RadioButton rbSouthOut;
-    private RadioButton rbNorthEnter;
-    private RadioButton rbNorthOut;
     private CheckBox cbEnterLine;
     private CheckBox cbOutLine;
     private Switch swControl;
     private ControlPresent controlPresent;
-    private ControlLogic controlLogic;
     private final int SOUTH_ENTRY = 25;
     private final int SOUTH_OUT = 26;
     private final int NORTH_ENTRY = 27;
@@ -52,10 +46,10 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
         ivImage = findViewById(R.id.ivImage);
         tvNumberPlate = findViewById(R.id.tvNumberPlate);
         rgSelect = findViewById(R.id.rgSelect);
-        rbSouthEnter = findViewById(R.id.rbSouthEnter);
-        rbSouthOut = findViewById(R.id.rbSouthOut);
-        rbNorthEnter = findViewById(R.id.rbNorthEnter);
-        rbNorthOut = findViewById(R.id.rbNorthOut);
+        // RadioButton rbSouthEnter = findViewById(R.id.rbSouthEnter);
+        // RadioButton rbSouthOut = findViewById(R.id.rbSouthOut);
+        // RadioButton rbNorthEnter = findViewById(R.id.rbNorthEnter);
+        // RadioButton rbNorthOut = findViewById(R.id.rbNorthOut);
         cbEnterLine = findViewById(R.id.cbEnterLine);
         cbOutLine = findViewById(R.id.cbOutLine);
         swControl = findViewById(R.id.swControl);
@@ -98,13 +92,11 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
             controlPresent.getInductionLine(entryId, outId);
         });
 
-        swControl.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
-            controlPresent.updateBarrier(barrierId, isChecked);
-        });
+        swControl.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> controlPresent.updateBarrier(barrierId, isChecked));
     }
 
     private void initData() {
-        controlLogic = new ControlLogic();
+        ControlLogic controlLogic = new ControlLogic();
         controlPresent = new ControlPresent(this, controlLogic);
 
         controlPresent.initData();
@@ -134,5 +126,11 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     @Override
     public void setNumberPlate(String numberPlate) {
         tvNumberPlate.setText(numberPlate);
+    }
+
+    @Override
+    protected void onDestroy() {
+        controlPresent.onDestroy();
+        super.onDestroy();
     }
 }

@@ -20,8 +20,8 @@ public class PaymentPresent implements PaymentLogic.PaymentUiRefresh {
     public PaymentPresent(PaymentView paymentView, PaymentLogic paymentLogic) {
         this.paymentView = paymentView;
         this.paymentLogic = paymentLogic;
-        uiHandler = new Handler(Looper.getMainLooper());
         paymentLogic.setPaymentUiRefresh(this);
+        uiHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -50,12 +50,7 @@ public class PaymentPresent implements PaymentLogic.PaymentUiRefresh {
 
     @Override
     public void showToast(String message) {
-        switchToMainThread(new Runnable() {
-            @Override
-            public void run() {
-                App.showToast(message);
-            }
-        });
+        switchToMainThread(() -> App.showToast(message));
     }
 
     /**
@@ -75,9 +70,7 @@ public class PaymentPresent implements PaymentLogic.PaymentUiRefresh {
      */
     @Override
     public void setNumberPlate(String numberPlate) {
-        switchToMainThread(() -> {
-            paymentView.setNumberPlate(numberPlate);
-        });
+        switchToMainThread(() -> paymentView.setNumberPlate(numberPlate));
     }
 
     /**
@@ -89,5 +82,9 @@ public class PaymentPresent implements PaymentLogic.PaymentUiRefresh {
     @Override
     public void setWidget(String start, String end, long pay, String paymentAmount) {
         switchToMainThread(() -> paymentView.setWidget(start, end, pay, paymentAmount));
+    }
+
+    public void onDestroy() {
+        paymentLogic.onDestroy();
     }
 }

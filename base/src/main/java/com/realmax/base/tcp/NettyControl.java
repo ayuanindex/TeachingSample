@@ -1,4 +1,4 @@
-package com.realmax.smarttrafficmanager.activity.tcp;
+package com.realmax.base.tcp;
 
 import com.realmax.base.utils.CustomerThread;
 import com.realmax.base.utils.EncodeAndDecode;

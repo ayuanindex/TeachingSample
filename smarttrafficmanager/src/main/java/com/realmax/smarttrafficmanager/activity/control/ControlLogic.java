@@ -11,12 +11,12 @@ import com.google.gson.Gson;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
 import com.realmax.base.ftp.FTPUtil;
+import com.realmax.base.tcp.CustomerCallback;
+import com.realmax.base.tcp.CustomerHandlerBase;
+import com.realmax.base.tcp.NettyControl;
 import com.realmax.base.utils.EncodeAndDecode;
 import com.realmax.base.utils.L;
 import com.realmax.base.utils.NumberPlateORC;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerCallback;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
-import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
 import com.realmax.smarttrafficmanager.bean.BarrierBean;
 import com.realmax.smarttrafficmanager.bean.InductionLineBean;
 import com.realmax.smarttrafficmanager.bean.WeatherBean;
@@ -37,7 +37,7 @@ import java.util.TimerTask;
  * @author ayuan
  */
 public class ControlLogic extends BaseLogic {
-
+    private ControlUiRefresh controlUiRefresh;
     private Bitmap bitmap;
     private Timer timer;
     private TimerTask task;
@@ -57,19 +57,16 @@ public class ControlLogic extends BaseLogic {
      * 2020-03-31 00:00:00.0
      */
     @SuppressLint("SimpleDateFormat")
-    private static SimpleDateFormat uploadDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    @SuppressLint("SimpleDateFormat")
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * 发送查看虚拟摄像头的命令
      *
-     * @param deviceType       设备类型
-     * @param deviceId         设备编号
-     * @param cameraNum        摄像头编号
-     * @param controlUiRefresh 回调
+     * @param deviceType 设备类型
+     * @param deviceId   设备编号
+     * @param cameraNum  摄像头编号
      */
-    public void startCamera(String deviceType, int deviceId, int cameraNum, ControlUiRefresh controlUiRefresh) {
+    public void startCamera(String deviceType, int deviceId, int cameraNum) {
         this.deviceId = deviceId;
         this.cameraNum = cameraNum;
 
@@ -85,7 +82,7 @@ public class ControlLogic extends BaseLogic {
                 @Override
                 public void getResultData(String msg) {
                     /*L.e(msg);*/
-                    getImageData(msg, controlUiRefresh);
+                    getImageData(msg);
                 }
             });
         }
@@ -96,11 +93,10 @@ public class ControlLogic extends BaseLogic {
     /**
      * 获取照片数据
      *
-     * @param msg              json数据
-     * @param controlUiRefresh 回调
+     * @param msg json数据
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void getImageData(String msg, ControlUiRefresh controlUiRefresh) {
+    private void getImageData(String msg) {
         try {
             if (!TextUtils.isEmpty(msg)) {
                 JSONObject jsonObject = new JSONObject(msg);
@@ -112,12 +108,12 @@ public class ControlLogic extends BaseLogic {
                 } else if ("ans".equals(jsonObject.optString("cmd"))) {
                     WeatherBean weatherBean = new Gson().fromJson(msg, WeatherBean.class);
                     L.e("拿到虚拟场景的环境信息-------------" + weatherBean.toString());
-                    upload(weatherBean, controlUiRefresh);
+                    upload(weatherBean);
                 }
             }
         } catch (JSONException e) {
             String substring = msg.substring(1);
-            getImageData(substring, controlUiRefresh);
+            getImageData(substring);
             L.e("json数据异常");
         }
     }
@@ -125,10 +121,9 @@ public class ControlLogic extends BaseLogic {
     /**
      * 上传
      *
-     * @param weatherBean      环境数据
-     * @param controlUiRefresh 回调
+     * @param weatherBean 环境数据
      */
-    private void upload(WeatherBean weatherBean, ControlUiRefresh controlUiRefresh) {
+    private void upload(WeatherBean weatherBean) {
         try {
             // 获取当前系统的年月日
             Date date = new Date();
@@ -144,7 +139,9 @@ public class ControlLogic extends BaseLogic {
                 L.e("上传状态----------" + uploading);
                 if (uploading) {
                     if (file != null) {
-                        file.delete();
+                        if (file.delete()) {
+                            L.e("上传照片临时文件已删除");
+                        }
                     }
                     // 拼接地址
                     String imageUrl = "http://driving.zuto360.com/upload/" + date.getTime() + ".png";
@@ -203,7 +200,7 @@ public class ControlLogic extends BaseLogic {
     /**
      * 开启出入口循环检测
      */
-    public void getEntranceStatus(ControlUiRefresh controlUiRefresh) {
+    public void getEntranceStatus() {
         timer = new Timer();
         task = new TimerTask() {
             @Override
@@ -243,7 +240,7 @@ public class ControlLogic extends BaseLogic {
 
                     if (isOpen && flag) {
                         // 有车压线
-                        identifyTheLicensePlate(controlUiRefresh);
+                        identifyTheLicensePlate();
                     }
                 });
             }
@@ -253,10 +250,8 @@ public class ControlLogic extends BaseLogic {
 
     /**
      * 识别车牌号
-     *
-     * @param controlUiRefresh 回调
      */
-    private void identifyTheLicensePlate(ControlUiRefresh controlUiRefresh) {
+    private void identifyTheLicensePlate() {
         try {
             JSONObject jsonObject = new JSONObject(jsonStr);
             int deviceId = jsonObject.optInt("deviceId");
@@ -284,6 +279,23 @@ public class ControlLogic extends BaseLogic {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void onDestroy() {
+        // 取消定时
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
+    }
+
+    public void setControlUiRefresh(ControlUiRefresh controlUiRefresh) {
+        this.controlUiRefresh = controlUiRefresh;
     }
 
     interface ControlUiRefresh extends BaseUiRefresh {
@@ -315,5 +327,10 @@ public class ControlLogic extends BaseLogic {
          * @param numberPlate 识别出的车牌号
          */
         void setNumberPlate(String numberPlate);
+
+        /**
+         * 结束时调用
+         */
+        void onDestroy();
     }
 }

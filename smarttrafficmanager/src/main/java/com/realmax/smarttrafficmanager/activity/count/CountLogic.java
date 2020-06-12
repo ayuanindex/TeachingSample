@@ -21,12 +21,7 @@ public class CountLogic extends BaseLogic {
      */
     public void getParking(CountUiRefresh countUiRefresh) {
         parkingBeans = new ArrayList<>();
-        QueryUtil.queryParking(parkingBeans, new QueryUtil.Result() {
-            @Override
-            public void success(Object object) {
-                countUiRefresh.setListData(parkingBeans);
-            }
-        });
+        QueryUtil.queryParking(parkingBeans, (Object object) -> countUiRefresh.setListData(parkingBeans));
     }
 
     interface CountUiRefresh extends BaseUiRefresh {

@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
         });
 
         cardPayment.setOnClickListener((View v) -> {
-            // TODO: 2020/6/4
             mainPresent.startPayment();
         });
     }

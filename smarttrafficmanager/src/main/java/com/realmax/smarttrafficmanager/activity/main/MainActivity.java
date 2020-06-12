@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private ImageView ivTraffic;
     private ImageView ivPayment;
     private MaterialCardView cardCommunicationSettings;
-    private MainLogic mainLogic;
     private MainPresent mainPresent;
 
     @Override
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     private void initData() {
-        mainLogic = new MainLogic();
+        MainLogic mainLogic = new MainLogic();
         mainPresent = new MainPresent(this, mainLogic);
 
         mainPresent.initData();

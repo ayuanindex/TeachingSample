@@ -5,13 +5,13 @@ import android.text.TextUtils;
 import com.realmax.base.App;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
+import com.realmax.base.tcp.CustomerCallback;
+import com.realmax.base.tcp.CustomerHandlerBase;
+import com.realmax.base.tcp.NettyControl;
+import com.realmax.base.tcp.NettyLinkUtil;
 import com.realmax.base.utils.CustomerThread;
 import com.realmax.base.utils.L;
 import com.realmax.base.utils.SpUtil;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerCallback;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
-import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
-import com.realmax.smarttrafficmanager.activity.tcp.NettyLinkUtil;
 
 import io.netty.channel.EventLoopGroup;
 

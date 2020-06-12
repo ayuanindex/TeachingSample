@@ -10,12 +10,12 @@ import androidx.annotation.RequiresApi;
 import com.google.gson.Gson;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
+import com.realmax.base.tcp.CustomerCallback;
+import com.realmax.base.tcp.CustomerHandlerBase;
+import com.realmax.base.tcp.NettyControl;
 import com.realmax.base.utils.EncodeAndDecode;
 import com.realmax.base.utils.L;
 import com.realmax.base.utils.NumberPlateORC;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerCallback;
-import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
-import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
 import com.realmax.smarttrafficmanager.bean.InductionLineBean;
 import com.realmax.smarttrafficmanager.bean.UploadBean;
 import com.realmax.smarttrafficmanager.bean.WeatherBean;
@@ -35,26 +35,20 @@ import java.util.TimerTask;
  * @author ayuan
  */
 public class PaymentLogic extends BaseLogic {
-    private static final String TAG = "PaymentLogic";
     private PaymentUiRefresh paymentUiRefresh;
-    private Bitmap bitmap;
     private Timer timer;
     private String ETC = "ETC收费站";
     private int deviceId = 2;
     private int cameraNum = 1;
     private boolean orc = true;
     private boolean flag = false;
-    private Bitmap numberPlateBitmap;
     private String jsonStr;
     @SuppressLint("SimpleDateFormat")
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @SuppressLint("SimpleDateFormat")
     private static SimpleDateFormat yearDataFormat = new SimpleDateFormat("yyyy-MM-dd");
     private UploadBean bean;
-
-    public void setPaymentUiRefresh(PaymentUiRefresh paymentUiRefresh) {
-        this.paymentUiRefresh = paymentUiRefresh;
-    }
+    private TimerTask task;
 
     /**
      * 开启摄像头
@@ -93,7 +87,7 @@ public class PaymentLogic extends BaseLogic {
                 if (jsonObject.optString("cmd").equals("play")) {
                     jsonStr = msg;
                     String cameraImg = jsonObject.optString("cameraImg");
-                    bitmap = EncodeAndDecode.base64ToImage(cameraImg);
+                    Bitmap bitmap = EncodeAndDecode.base64ToImage(cameraImg);
                     paymentUiRefresh.setImage(bitmap);
                 } else if (jsonObject.optString("cmd").equals("ans")) {
                     WeatherBean weatherBean = new Gson().fromJson(msg, WeatherBean.class);
@@ -113,7 +107,7 @@ public class PaymentLogic extends BaseLogic {
      */
     public void getEntranceStatus() {
         timer = new Timer();
-        timer.schedule(new TimerTask() {
+        task = new TimerTask() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void run() {
@@ -137,7 +131,8 @@ public class PaymentLogic extends BaseLogic {
                     LicensePlateRecognition();
                 });
             }
-        }, 0, 100);
+        };
+        timer.schedule(task, 0, 100);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -187,23 +182,26 @@ public class PaymentLogic extends BaseLogic {
         try {
             if (!TextUtils.isEmpty(bean.getBeginTime())) {
                 Date start = simpleDateFormat.parse(bean.getBeginTime(), new ParsePosition(0));
-                Date end = null;
+                Date end;
                 if (TextUtils.isEmpty(bean.getEndTime())) {
                     end = simpleDateFormat.parse(currentTime, new ParsePosition(0));
                 } else {
                     end = simpleDateFormat.parse(bean.getEndTime(), new ParsePosition(0));
                 }
-                long timeDifference = end.getTime() - start.getTime();
-                long days = timeDifference / (1000 * 60 * 60 * 24);
-                long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
-                long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
-                long pay = (days * 24 * 5) + (hours * 5) + ((minutes / 60) * 5);
-                paymentUiRefresh.setWidget(
-                        simpleDateFormat.format(start),
-                        simpleDateFormat.format(end),
-                        pay,
-                        bean.getPaymentAmount()
-                );
+
+                if (start != null && end != null) {
+                    long timeDifference = end.getTime() - start.getTime();
+                    long days = timeDifference / (1000 * 60 * 60 * 24);
+                    long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+                    long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
+                    long pay = (days * 24 * 5) + (hours * 5) + ((minutes / 60) * 5);
+                    paymentUiRefresh.setWidget(
+                            simpleDateFormat.format(start),
+                            simpleDateFormat.format(end),
+                            pay,
+                            bean.getPaymentAmount()
+                    );
+                }
             } else {
                 paymentUiRefresh.showToast("暂无停车记录");
                 paymentUiRefresh.setWidget("暂无", "暂无", 0, "暂无");
@@ -241,7 +239,24 @@ public class PaymentLogic extends BaseLogic {
         NettyControl.sendCameraCmd(ETC, deviceId, cameraNum);
     }
 
+    public void setPaymentUiRefresh(PaymentUiRefresh paymentUiRefresh) {
+        this.paymentUiRefresh = paymentUiRefresh;
+    }
+
+    public void onDestroy() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
+    }
+
     interface PaymentUiRefresh extends BaseUiRefresh {
+
 
         /**
          * 设置下显示图片
