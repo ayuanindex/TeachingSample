@@ -28,4 +28,12 @@ public interface PaymentView {
      * @param numberPlate 车牌号
      */
     void setNumberPlate(String numberPlate);
+
+    /**
+     * @param start         开始时间
+     * @param end           结束时间
+     * @param pay           缴费金额
+     * @param paymentAmount 缴费状态
+     */
+    void setWidget(String start, String end, long pay, String paymentAmount);
 }

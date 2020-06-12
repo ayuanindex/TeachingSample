@@ -21,6 +21,7 @@ public class PaymentPresent implements PaymentLogic.PaymentUiRefresh {
         this.paymentView = paymentView;
         this.paymentLogic = paymentLogic;
         uiHandler = new Handler(Looper.getMainLooper());
+        paymentLogic.setPaymentUiRefresh(this);
     }
 
     @Override
@@ -37,14 +38,14 @@ public class PaymentPresent implements PaymentLogic.PaymentUiRefresh {
         // 获取摄像头数据
         startCamera();
         // 获取感应线的状态
-        paymentLogic.getEntranceStatus(this);
+        paymentLogic.getEntranceStatus();
     }
 
     /**
      * 开启摄像头
      */
     private void startCamera() {
-        paymentLogic.startCamera(this);
+        paymentLogic.startCamera();
     }
 
     @Override
@@ -77,5 +78,16 @@ public class PaymentPresent implements PaymentLogic.PaymentUiRefresh {
         switchToMainThread(() -> {
             paymentView.setNumberPlate(numberPlate);
         });
+    }
+
+    /**
+     * @param start         开始时间
+     * @param end           结束时间
+     * @param pay           缴费金额
+     * @param paymentAmount 缴费状态
+     */
+    @Override
+    public void setWidget(String start, String end, long pay, String paymentAmount) {
+        switchToMainThread(() -> paymentView.setWidget(start, end, pay, paymentAmount));
     }
 }

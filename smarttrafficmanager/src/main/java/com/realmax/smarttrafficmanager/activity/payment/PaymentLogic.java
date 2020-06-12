@@ -1,11 +1,13 @@
 package com.realmax.smarttrafficmanager.activity.payment;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.gson.Gson;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
 import com.realmax.base.utils.EncodeAndDecode;
@@ -15,12 +17,17 @@ import com.realmax.smarttrafficmanager.activity.tcp.CustomerCallback;
 import com.realmax.smarttrafficmanager.activity.tcp.CustomerHandlerBase;
 import com.realmax.smarttrafficmanager.activity.tcp.NettyControl;
 import com.realmax.smarttrafficmanager.bean.InductionLineBean;
+import com.realmax.smarttrafficmanager.bean.UploadBean;
+import com.realmax.smarttrafficmanager.bean.WeatherBean;
 import com.realmax.smarttrafficmanager.util.QueryUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,7 +35,8 @@ import java.util.TimerTask;
  * @author ayuan
  */
 public class PaymentLogic extends BaseLogic {
-
+    private static final String TAG = "PaymentLogic";
+    private PaymentUiRefresh paymentUiRefresh;
     private Bitmap bitmap;
     private Timer timer;
     private String ETC = "ETC收费站";
@@ -38,12 +46,20 @@ public class PaymentLogic extends BaseLogic {
     private boolean flag = false;
     private Bitmap numberPlateBitmap;
     private String jsonStr;
+    @SuppressLint("SimpleDateFormat")
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @SuppressLint("SimpleDateFormat")
+    private static SimpleDateFormat yearDataFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private UploadBean bean;
 
+    public void setPaymentUiRefresh(PaymentUiRefresh paymentUiRefresh) {
+        this.paymentUiRefresh = paymentUiRefresh;
+    }
 
     /**
      * 开启摄像头
      */
-    public void startCamera(PaymentUiRefresh paymentUiRefresh) {
+    public void startCamera() {
         CustomerHandlerBase customerHandlerBase = NettyControl.getHandlerHashMap().get("Camera");
         if (customerHandlerBase != null) {
             customerHandlerBase.setCustomerCallback(new CustomerCallback() {
@@ -56,7 +72,7 @@ public class PaymentLogic extends BaseLogic {
                 @Override
                 public void getResultData(String msg) {
                     /*L.e(msg);*/
-                    getImageData(msg, paymentUiRefresh);
+                    getImageData(msg);
                 }
             });
         }
@@ -67,30 +83,35 @@ public class PaymentLogic extends BaseLogic {
     /**
      * 获取照片数据
      *
-     * @param msg              json数据
-     * @param paymentUiRefresh 回调
+     * @param msg json数据
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void getImageData(String msg, PaymentUiRefresh paymentUiRefresh) {
+    private void getImageData(String msg) {
         try {
             if (!TextUtils.isEmpty(msg)) {
-                jsonStr = msg;
                 JSONObject jsonObject = new JSONObject(msg);
-                String cameraImg = jsonObject.optString("cameraImg");
-                bitmap = EncodeAndDecode.base64ToImage(cameraImg);
-                paymentUiRefresh.setImage(bitmap);
+                if (jsonObject.optString("cmd").equals("play")) {
+                    jsonStr = msg;
+                    String cameraImg = jsonObject.optString("cameraImg");
+                    bitmap = EncodeAndDecode.base64ToImage(cameraImg);
+                    paymentUiRefresh.setImage(bitmap);
+                } else if (jsonObject.optString("cmd").equals("ans")) {
+                    WeatherBean weatherBean = new Gson().fromJson(msg, WeatherBean.class);
+                    String year = yearDataFormat.format(new Date());
+                    setWidget(bean, year + " " + weatherBean.getTime());
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
             String substring = msg.substring(1);
-            getImageData(substring, paymentUiRefresh);
+            getImageData(substring);
         }
     }
 
     /**
      * 获取出入口的状态
      */
-    public void getEntranceStatus(PaymentUiRefresh paymentUiRefresh) {
+    public void getEntranceStatus() {
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -113,14 +134,14 @@ public class PaymentLogic extends BaseLogic {
                         }
                     }
 
-                    LicensePlateRecognition(paymentUiRefresh);
+                    LicensePlateRecognition();
                 });
             }
         }, 0, 100);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void LicensePlateRecognition(PaymentUiRefresh paymentUiRefresh) {
+    private void LicensePlateRecognition() {
         try {
             if (!TextUtils.isEmpty(jsonStr)) {
                 JSONObject jsonObject = new JSONObject(jsonStr);
@@ -136,6 +157,13 @@ public class PaymentLogic extends BaseLogic {
                                 L.e("结束识别");
                                 paymentUiRefresh.setNumberPlate(numberPlate);
                                 orc = false;
+                                // 车牌号识别成功，从数据库中查询数据
+                                QueryUtil.queryParkingRecording(numberPlate, (Object object) -> {
+                                    if (object != null) {
+                                        bean = (UploadBean) object;
+                                        NettyControl.sendWeatherCmd();
+                                    }
+                                });
                             } else {
                                 orc = true;
                             }
@@ -144,6 +172,43 @@ public class PaymentLogic extends BaseLogic {
                 }
             }
         } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 将数据处理后设置到控件上
+     * 停车费每小时5元
+     *
+     * @param bean        需要展示的数据
+     * @param currentTime 当前时间
+     */
+    private void setWidget(UploadBean bean, String currentTime) {
+        try {
+            if (!TextUtils.isEmpty(bean.getBeginTime())) {
+                Date start = simpleDateFormat.parse(bean.getBeginTime(), new ParsePosition(0));
+                Date end = null;
+                if (TextUtils.isEmpty(bean.getEndTime())) {
+                    end = simpleDateFormat.parse(currentTime, new ParsePosition(0));
+                } else {
+                    end = simpleDateFormat.parse(bean.getEndTime(), new ParsePosition(0));
+                }
+                long timeDifference = end.getTime() - start.getTime();
+                long days = timeDifference / (1000 * 60 * 60 * 24);
+                long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+                long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
+                long pay = (days * 24 * 5) + (hours * 5) + ((minutes / 60) * 5);
+                paymentUiRefresh.setWidget(
+                        simpleDateFormat.format(start),
+                        simpleDateFormat.format(end),
+                        pay,
+                        bean.getPaymentAmount()
+                );
+            } else {
+                paymentUiRefresh.showToast("暂无停车记录");
+                paymentUiRefresh.setWidget("暂无", "暂无", 0, "暂无");
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -191,5 +256,15 @@ public class PaymentLogic extends BaseLogic {
          * @param numberPlate 车牌号
          */
         void setNumberPlate(String numberPlate);
+
+        /**
+         * 将对应的停车数据展示出来
+         *
+         * @param start         开始时间
+         * @param end           结束时间
+         * @param pay           缴费金额
+         * @param paymentAmount 缴费状态
+         */
+        void setWidget(String start, String end, long pay, String paymentAmount);
     }
 }

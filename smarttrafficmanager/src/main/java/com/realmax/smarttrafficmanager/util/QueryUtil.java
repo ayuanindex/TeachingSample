@@ -8,6 +8,7 @@ import com.realmax.base.utils.L;
 import com.realmax.smarttrafficmanager.bean.BarrierBean;
 import com.realmax.smarttrafficmanager.bean.InductionLineBean;
 import com.realmax.smarttrafficmanager.bean.ParkingBean;
+import com.realmax.smarttrafficmanager.bean.UploadBean;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -180,13 +181,15 @@ public class QueryUtil {
                         "car_num," +
                         " begin_time," +
                         " comment," +
+                        " payment_amount," +
                         " startImage" +
-                        ") VALUES (?,?,?,?);";
+                        ") VALUES (?,?,?,?,?);";
                 PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
                 preparedStatement.setString(1, numberPlate);
                 preparedStatement.setString(2, finalCurrentTime);
                 preparedStatement.setString(3, "1");
-                preparedStatement.setString(4, imageUrl);
+                preparedStatement.setString(4, "未缴费");
+                preparedStatement.setString(5, imageUrl);
                 int i = preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -269,6 +272,37 @@ public class QueryUtil {
                 }
                 result.success(comment);
                 DbOpenhelper.closeAll(preparedStatement, resultSet);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 根据车牌号查询当前车辆的停车记录
+     *
+     * @param numberPlate 车牌号
+     * @param result
+     */
+    public static void queryParkingRecording(String numberPlate, Result result) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?;");
+                preparedStatement.setString(1, numberPlate);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                UploadBean uploadBean = new UploadBean();
+                if (resultSet.first()) {
+                    uploadBean.setCarNum(resultSet.getString("car_num"));
+                    uploadBean.setBeginTime(resultSet.getString("begin_time"));
+                    uploadBean.setEndTime(resultSet.getString("end_time"));
+                    uploadBean.setParkingTime(resultSet.getString("parking_time"));
+                    uploadBean.setPaymentAmount(resultSet.getString("payment_amount"));
+                    uploadBean.setComment(resultSet.getString("comment"));
+                    uploadBean.setStartImage(resultSet.getString("startImage"));
+                    uploadBean.setEndImage(resultSet.getString("endImage"));
+                }
+                result.success(uploadBean);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
