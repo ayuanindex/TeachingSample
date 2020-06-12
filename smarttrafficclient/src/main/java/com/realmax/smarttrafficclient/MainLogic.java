@@ -92,7 +92,6 @@ public class MainLogic extends BaseLogic {
 
         PaymentViewHolder holder = new PaymentViewHolder(inflate);
 
-        // TODO: 2020/6/4 待完成
         QueryUtil.deleteParkingRecord(numberPlate, (Object object) -> {
             Handler handler = new Handler(Looper.getMainLooper());
             boolean b = (boolean) object;

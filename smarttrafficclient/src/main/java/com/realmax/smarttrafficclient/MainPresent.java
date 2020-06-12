@@ -109,8 +109,6 @@ public class MainPresent implements MainLogic.MainUiRefresh {
      */
     @Override
     public void setWidget(String message) {
-        switchToMainThread(() -> {
-            mainView.setWidget(message);
-        });
+        switchToMainThread(() -> mainView.setWidget(message));
     }
 }
