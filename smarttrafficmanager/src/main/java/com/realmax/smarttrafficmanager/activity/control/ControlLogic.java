@@ -270,7 +270,7 @@ public class ControlLogic extends BaseLogic {
                         // 修改道闸状态
                         updateBarrier(barrierId, true);
                         // 获取当前虚拟场景的时间
-                        NettyControl.sendWeatherCmd();
+                        NettyControl.sendWeatherCmd("Camera");
                     } else {
                         isOpen = true;
                     }

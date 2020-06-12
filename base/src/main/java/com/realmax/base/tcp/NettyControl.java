@@ -115,9 +115,11 @@ public class NettyControl {
 
     /**
      * 发送获取天气信息的指令
+     *
+     * @param camera 发送消息使用的Handler标示符
      */
-    public static void sendWeatherCmd() {
-        CustomerHandlerBase customerHandler = getHandlerHashMap().get("Camera");
+    public static void sendWeatherCmd(String camera) {
+        CustomerHandlerBase customerHandler = getHandlerHashMap().get(camera);
         if (customerHandler == null) {
             return;
         }

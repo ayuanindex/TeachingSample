@@ -44,7 +44,7 @@ public class MainLogic extends BaseLogic {
         }
 
         flag = true;
-        NettyControl.sendWeatherCmd();
+        NettyControl.sendWeatherCmd("Camera");
     }
 
     /**

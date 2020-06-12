@@ -156,7 +156,7 @@ public class PaymentLogic extends BaseLogic {
                                 QueryUtil.queryParkingRecording(numberPlate, (Object object) -> {
                                     if (object != null) {
                                         bean = (UploadBean) object;
-                                        NettyControl.sendWeatherCmd();
+                                        NettyControl.sendWeatherCmd("Camera");
                                     }
                                 });
                             } else {

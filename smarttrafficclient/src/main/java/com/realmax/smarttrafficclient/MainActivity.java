@@ -9,6 +9,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.realmax.smarttrafficclient.bean.WeatherBean;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity implements MainView {
 
     private TextView tvTime;
@@ -20,7 +25,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private TextView tvDescription;
     private CardView cardMyCar;
     private CardView cardPayment;
-    private MainLogic mainLogic;
     private MainPresent mainPresent;
 
     @Override
@@ -45,17 +49,13 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     private void initListener() {
-        cardMyCar.setOnClickListener((View v) -> {
-            mainPresent.setNumberPlate();
-        });
+        cardMyCar.setOnClickListener((View v) -> mainPresent.setNumberPlate());
 
-        cardPayment.setOnClickListener((View v) -> {
-            mainPresent.startPayment();
-        });
+        cardPayment.setOnClickListener((View v) -> mainPresent.startPayment());
     }
 
     private void initData() {
-        mainLogic = new MainLogic();
+        MainLogic mainLogic = new MainLogic();
         mainPresent = new MainPresent(this, mainLogic);
 
         mainPresent.initData();
@@ -66,9 +66,36 @@ public class MainActivity extends AppCompatActivity implements MainView {
         return this;
     }
 
+    /**
+     * @param numberPlate 车牌号
+     */
     @SuppressLint("SetTextI18n")
     @Override
     public void setNumberPlate(String numberPlate) {
         tvNumberPlate.setText("车牌号:" + numberPlate);
+    }
+
+    /**
+     * @param weatherBean 数据
+     * @param weatherIcon 图标
+     */
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void setWeatherToWidget(WeatherBean weatherBean, int weatherIcon) {
+        tvTime.setText(weatherBean.getTime().substring(0, 5));
+        ivWeatherIcon.setImageResource(weatherIcon);
+        tvTemperature.setText(weatherBean.getTemp() + "ºC");
+        tvWeather.setText(weatherBean.getWeather());
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy,MM,dd");
+        String dateStr = simpleDateFormat.format(new Date());
+        tvDate.setText(dateStr);
+    }
+
+    /**
+     * @param message 文字
+     */
+    @Override
+    public void setWidget(String message) {
+        tvDescription.setText(message);
     }
 }

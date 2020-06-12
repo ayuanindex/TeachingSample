@@ -5,6 +5,9 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.realmax.base.App;
+import com.realmax.smarttrafficclient.bean.WeatherBean;
+
 /**
  * @author ayuan
  */
@@ -83,5 +86,31 @@ public class MainPresent implements MainLogic.MainUiRefresh {
      */
     public void startPayment() {
         mainLogic.startPayment();
+    }
+
+    /**
+     * @param message 需要显示的文字
+     */
+    @Override
+    public void showToast(String message) {
+        switchToMainThread(() -> App.showToast(message));
+    }
+
+    /**
+     * @param weatherBean 天气信息
+     */
+    @Override
+    public void setWeatherToWidget(WeatherBean weatherBean) {
+        switchToMainThread(() -> mainView.setWeatherToWidget(weatherBean, mainLogic.getWeatherIcon(weatherBean)));
+    }
+
+    /**
+     * @param message 分析结果
+     */
+    @Override
+    public void setWidget(String message) {
+        switchToMainThread(() -> {
+            mainView.setWidget(message);
+        });
     }
 }

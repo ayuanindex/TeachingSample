@@ -97,13 +97,13 @@
         android:id="@+id/tvNumberPlate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="车牌号:" />
+        android:layout_gravity="center" />
 
     <TextView
         android:id="@+id/tvDescription"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_margin="10dp"
         android:text="暂无缴费单" />
 
