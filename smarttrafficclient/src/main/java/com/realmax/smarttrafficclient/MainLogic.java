@@ -60,6 +60,8 @@ public class MainLogic extends BaseLogic {
         alertDialog.setView(inflate);
 
         NumberPlateViewHolder holder = new NumberPlateViewHolder(inflate);
+        holder.etNumberPlate.setText(SpUtil.getString(NUMBER_PLATE, ""));
+
         holder.cardDefine.setOnClickListener((View v) -> {
             String numberPlate = holder.etNumberPlate.getText().toString().trim();
             if (TextUtils.isEmpty(numberPlate)) {
@@ -170,9 +172,13 @@ public class MainLogic extends BaseLogic {
         View inflate = View.inflate(mainUiRefresh.getActivity(), R.layout.dialog_connect_setting, null);
         alertDialog.setView(inflate);
         ConnectedViewHolder connectedViewHolder = new ConnectedViewHolder(inflate);
+        connectedViewHolder.etIp.setText(SpUtil.getString("ip", "192.168.50.246"));
+        connectedViewHolder.etPort.setText(SpUtil.getString("port", "8527"));
+
         connectedViewHolder.cardConnect.setOnClickListener((View v) -> {
             String ipStr = connectedViewHolder.etIp.getText().toString().trim();
             String portStr = connectedViewHolder.etPort.getText().toString().trim();
+
             boolean flag = true;
             String msg = "请输入";
             if (TextUtils.isEmpty(ipStr)) {
@@ -190,6 +196,10 @@ public class MainLogic extends BaseLogic {
             }
 
             int port = Integer.parseInt(portStr);
+
+            // 保存IP和port
+            SpUtil.putString("ip", ipStr);
+            SpUtil.putString("port", portStr);
 
             CustomerThread.poolExecutor.execute(() -> {
                 try {

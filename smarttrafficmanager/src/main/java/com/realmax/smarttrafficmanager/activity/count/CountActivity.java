@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class CountActivity extends AppCompatActivity implements CountView {
     private GridView gvParkingSpace;
     private CountPresent countPresent;
+    private ParkingAdapter parkingAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,7 +43,13 @@ public class CountActivity extends AppCompatActivity implements CountView {
 
     @Override
     public void setListData(ArrayList<ParkingBean> parkingBeans) {
-        ParkingAdapter parkingAdapter = new ParkingAdapter(parkingBeans, countPresent);
+        parkingAdapter = new ParkingAdapter(parkingBeans, countPresent);
         gvParkingSpace.setAdapter(parkingAdapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        countPresent.onDestroy();
+        super.onDestroy();
     }
 }

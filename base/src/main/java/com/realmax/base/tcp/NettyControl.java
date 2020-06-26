@@ -74,20 +74,14 @@ public class NettyControl {
      */
     public static void sendCameraCmd(String deviceType, int deviceId, int cameraNum) {
         CustomerHandlerBase customerHandler = getHandlerHashMap().get("Camera");
-        if (customerHandler == null) {
-            return;
+        if (customerHandler != null) {
+            ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
+            if (handlerContext != null) {
+                /*String command = "{\"cmd\": \"start\", \"deviceId\": \"" + deviceId + "\", \"angleA\": " + angleA + ", \"angleB\": " + angleB + "}";*/
+                String command = "{\"cmd\": \"start\", \"deviceType\": \"" + deviceType + "\", \"deviceId\": " + deviceId + ", \"cameraNum\": " + cameraNum + "}";
+                handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x02)));
+            }
         }
-
-        ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
-
-        if (handlerContext == null) {
-            return;
-        }
-
-
-        /*String command = "{\"cmd\": \"start\", \"deviceId\": \"" + deviceId + "\", \"angleA\": " + angleA + ", \"angleB\": " + angleB + "}";*/
-        String command = "{\"cmd\": \"start\", \"deviceType\": \"" + deviceType + "\", \"deviceId\": " + deviceId + ", \"cameraNum\": " + cameraNum + "}";
-        handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x02)));
     }
 
     /**
@@ -95,19 +89,14 @@ public class NettyControl {
      */
     public static void sendStopCmd() {
         try {
-            CustomerHandlerBase customerHandler = getHandlerHashMap().get("camera");
-            if (customerHandler == null) {
-                return;
+            CustomerHandlerBase customerHandler = getHandlerHashMap().get("Camera");
+            if (customerHandler != null) {
+                ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
+                if (handlerContext != null) {
+                    String command = "{\"cmd\": \"stop\"}";
+                    handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x02)));
+                }
             }
-
-            ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
-
-            if (handlerContext == null) {
-                return;
-            }
-
-            String command = "{\"cmd\": \"stop\"}";
-            handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x02)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,17 +109,13 @@ public class NettyControl {
      */
     public static void sendWeatherCmd(String camera) {
         CustomerHandlerBase customerHandler = getHandlerHashMap().get(camera);
-        if (customerHandler == null) {
-            return;
+        if (customerHandler != null) {
+            ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
+            if (handlerContext != null) {
+                String command = "{\"cmd\": \"pull\"}";
+                handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x03)));
+            }
         }
-
-        ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
-
-        if (handlerContext == null) {
-            return;
-        }
-        String command = "{\"cmd\": \"pull\"}";
-        handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x03)));
     }
 
     /**

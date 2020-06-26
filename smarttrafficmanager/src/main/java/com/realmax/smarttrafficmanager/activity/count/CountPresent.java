@@ -21,6 +21,7 @@ public class CountPresent implements CountLogic.CountUiRefresh {
     public CountPresent(CountView countView, CountLogic countLogic) {
         this.countView = countView;
         this.countLogic = countLogic;
+        countLogic.setCountUiRefresh(this);
         uiHandler = new Handler(Looper.getMainLooper());
     }
 
@@ -42,11 +43,16 @@ public class CountPresent implements CountLogic.CountUiRefresh {
      * 获取停车位
      */
     private void getParking() {
-        countLogic.getParking(this);
+        countLogic.getParking();
     }
 
     @Override
     public void setListData(ArrayList<ParkingBean> parkingBeans) {
         switchToMainThread(() -> countView.setListData(parkingBeans));
+    }
+
+    public void onDestroy() {
+        countLogic.onDestroy();
+
     }
 }
