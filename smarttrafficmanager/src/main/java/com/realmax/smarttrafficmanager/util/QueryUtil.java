@@ -22,20 +22,22 @@ public class QueryUtil {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
-                String sql = "select * from signal_info where id in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);";
-                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    ParkingBean e = new ParkingBean();
-                    e.setId(resultSet.getInt("id"));
-                    e.setSignalName(resultSet.getString("signal_name"));
-                    e.setSignalText(resultSet.getString("signal_text"));
-                    e.setSignalType(resultSet.getString("signal_type"));
-                    e.setSignalValue(resultSet.getString("signal_value"));
-                    parkingBeans.add(e);
+                if (drivingConn != null) {
+                    String sql = "select * from signal_info where id in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);";
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    while (resultSet.next()) {
+                        ParkingBean e = new ParkingBean();
+                        e.setId(resultSet.getInt("id"));
+                        e.setSignalName(resultSet.getString("signal_name"));
+                        e.setSignalText(resultSet.getString("signal_text"));
+                        e.setSignalType(resultSet.getString("signal_type"));
+                        e.setSignalValue(resultSet.getString("signal_value"));
+                        parkingBeans.add(e);
+                    }
+                    result.success(parkingBeans);
+                    DbOpenhelper.closeAll(preparedStatement, resultSet);
                 }
-                result.success(parkingBeans);
-                DbOpenhelper.closeAll(preparedStatement, resultSet);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -51,18 +53,20 @@ public class QueryUtil {
     public static void queryBarrierStatus(BarrierBean barrierBean, Result result) {
         try {
             Connection drivingConn = DbOpenhelper.getDrivingConn();
-            String sql = "select * from signal_info where id=?;";
-            PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
-            preparedStatement.setInt(1, barrierBean.getId());
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                barrierBean.setSignalName(resultSet.getString("signal_name"));
-                barrierBean.setSignalText(resultSet.getString("signal_text"));
-                barrierBean.setSignalType(resultSet.getString("signal_type"));
-                barrierBean.setSignalValue(resultSet.getString("signal_value"));
+            if (drivingConn != null) {
+                String sql = "select * from signal_info where id=?;";
+                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                preparedStatement.setInt(1, barrierBean.getId());
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    barrierBean.setSignalName(resultSet.getString("signal_name"));
+                    barrierBean.setSignalText(resultSet.getString("signal_text"));
+                    barrierBean.setSignalType(resultSet.getString("signal_type"));
+                    barrierBean.setSignalValue(resultSet.getString("signal_value"));
+                }
+                result.success(barrierBean);
+                DbOpenhelper.closeAll(preparedStatement, resultSet);
             }
-            result.success(barrierBean);
-            DbOpenhelper.closeAll(preparedStatement, resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -82,14 +86,16 @@ public class QueryUtil {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
-                String sql = "update signal_info set signal_value=? where id = ?";
-                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
-                preparedStatement.setString(1, String.valueOf(i));
-                preparedStatement.setInt(2, barrierId);
-                int update = preparedStatement.executeUpdate();
-                L.e(update + "哈哈");
-                result.success(1);
-                DbOpenhelper.closeAll(preparedStatement);
+                if (drivingConn != null) {
+                    String sql = "update signal_info set signal_value=? where id = ?";
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                    preparedStatement.setString(1, String.valueOf(i));
+                    preparedStatement.setInt(2, barrierId);
+                    int update = preparedStatement.executeUpdate();
+                    L.e(update + "哈哈");
+                    result.success(1);
+                    DbOpenhelper.closeAll(preparedStatement);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -105,23 +111,25 @@ public class QueryUtil {
     public static void queryInductionLine(ArrayList<InductionLineBean> inductionLineBeans, Result result) {
         try {
             Connection drivingConn = DbOpenhelper.getDrivingConn();
-            PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (?, ?);");
-            preparedStatement.setInt(1, inductionLineBeans.get(0).getId());
-            preparedStatement.setInt(2, inductionLineBeans.get(1).getId());
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                for (InductionLineBean inductionLineBean : inductionLineBeans) {
-                    if (resultSet.getInt("id") == inductionLineBean.getId()) {
-                        inductionLineBean.setSignalName(resultSet.getString("signal_name"));
-                        inductionLineBean.setSignalText(resultSet.getString("signal_text"));
-                        inductionLineBean.setSignalType(resultSet.getString("signal_type"));
-                        inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
-                        break;
+            if (drivingConn != null) {
+                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (?, ?);");
+                preparedStatement.setInt(1, inductionLineBeans.get(0).getId());
+                preparedStatement.setInt(2, inductionLineBeans.get(1).getId());
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    for (InductionLineBean inductionLineBean : inductionLineBeans) {
+                        if (resultSet.getInt("id") == inductionLineBean.getId()) {
+                            inductionLineBean.setSignalName(resultSet.getString("signal_name"));
+                            inductionLineBean.setSignalText(resultSet.getString("signal_text"));
+                            inductionLineBean.setSignalType(resultSet.getString("signal_type"));
+                            inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
+                            break;
+                        }
                     }
                 }
+                result.success(inductionLineBeans);
+                DbOpenhelper.closeAll(preparedStatement, resultSet);
             }
-            result.success(inductionLineBeans);
-            DbOpenhelper.closeAll(preparedStatement, resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -136,19 +144,21 @@ public class QueryUtil {
     public static void queryAllInductionLine(ArrayList<InductionLineBean> inductionLineBeans, Result result) {
         try {
             Connection drivingConn = DbOpenhelper.getDrivingConn();
-            PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (17,18,19,20,21,22,23,24);");
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                InductionLineBean inductionLineBean = new InductionLineBean();
-                inductionLineBean.setId(resultSet.getInt("id"));
-                inductionLineBean.setSignalName(resultSet.getString("signal_name"));
-                inductionLineBean.setSignalText(resultSet.getString("signal_text"));
-                inductionLineBean.setSignalType(resultSet.getString("signal_type"));
-                inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
-                inductionLineBeans.add(inductionLineBean);
+            if (drivingConn != null) {
+                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (17,18,19,20,21,22,23,24);");
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    InductionLineBean inductionLineBean = new InductionLineBean();
+                    inductionLineBean.setId(resultSet.getInt("id"));
+                    inductionLineBean.setSignalName(resultSet.getString("signal_name"));
+                    inductionLineBean.setSignalText(resultSet.getString("signal_text"));
+                    inductionLineBean.setSignalType(resultSet.getString("signal_type"));
+                    inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
+                    inductionLineBeans.add(inductionLineBean);
+                }
+                result.success(inductionLineBeans);
+                DbOpenhelper.closeAll(preparedStatement, resultSet);
             }
-            result.success(inductionLineBeans);
-            DbOpenhelper.closeAll(preparedStatement, resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -165,21 +175,23 @@ public class QueryUtil {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
-                String sql = "INSERT INTO driving.car_information (" +
-                        "car_num," +
-                        " begin_time," +
-                        " comment," +
-                        " payment_amount," +
-                        " startImage" +
-                        ") VALUES (?,?,?,?,?);";
-                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
-                preparedStatement.setString(1, numberPlate);
-                preparedStatement.setString(2, finalCurrentTime);
-                preparedStatement.setString(3, "1");
-                preparedStatement.setString(4, "未缴费");
-                preparedStatement.setString(5, imageUrl);
-                preparedStatement.executeUpdate();
-                DbOpenhelper.closeAll(preparedStatement);
+                if (drivingConn != null) {
+                    String sql = "INSERT INTO driving.car_information (" +
+                            "car_num," +
+                            " begin_time," +
+                            " comment," +
+                            " payment_amount," +
+                            " startImage" +
+                            ") VALUES (?,?,?,?,?);";
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                    preparedStatement.setString(1, numberPlate);
+                    preparedStatement.setString(2, finalCurrentTime);
+                    preparedStatement.setString(3, "1");
+                    preparedStatement.setString(4, "未缴费");
+                    preparedStatement.setString(5, imageUrl);
+                    preparedStatement.executeUpdate();
+                    DbOpenhelper.closeAll(preparedStatement);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -195,19 +207,21 @@ public class QueryUtil {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
-                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?");
-                preparedStatement.setString(1, numberPlate);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                resultSet.last();
-                int count = resultSet.getRow();
-                if (count > 0) {
-                    // 查询到了当前车牌号的数据
-                    result.success(true);
-                } else {
-                    // 没有查询到当前车牌号的数据，则插入一行数据
-                    result.success(false);
+                if (drivingConn != null) {
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?");
+                    preparedStatement.setString(1, numberPlate);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    resultSet.last();
+                    int count = resultSet.getRow();
+                    if (count > 0) {
+                        // 查询到了当前车牌号的数据
+                        result.success(true);
+                    } else {
+                        // 没有查询到当前车牌号的数据，则插入一行数据
+                        result.success(false);
+                    }
+                    DbOpenhelper.closeAll(preparedStatement, resultSet);
                 }
-                DbOpenhelper.closeAll(preparedStatement, resultSet);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -236,12 +250,14 @@ public class QueryUtil {
                     sql = "update car_information set end_time=?,endImage=?,comment='0' where car_num=?";
                 }
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
-                PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
-                preparedStatement.setString(1, finalCurrentTime);
-                preparedStatement.setString(2, imageUrl);
-                preparedStatement.setString(3, numberPlate);
-                int i = preparedStatement.executeUpdate();
-                result.success(i > 0);
+                if (drivingConn != null) {
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                    preparedStatement.setString(1, finalCurrentTime);
+                    preparedStatement.setString(2, imageUrl);
+                    preparedStatement.setString(3, numberPlate);
+                    int i = preparedStatement.executeUpdate();
+                    result.success(i > 0);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -252,15 +268,17 @@ public class QueryUtil {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
-                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?");
-                preparedStatement.setString(1, numberPlate);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                String comment = "";
-                while (resultSet.next()) {
-                    comment = resultSet.getString("comment");
+                if (drivingConn != null) {
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?");
+                    preparedStatement.setString(1, numberPlate);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    String comment = "";
+                    while (resultSet.next()) {
+                        comment = resultSet.getString("comment");
+                    }
+                    result.success(comment);
+                    DbOpenhelper.closeAll(preparedStatement, resultSet);
                 }
-                result.success(comment);
-                DbOpenhelper.closeAll(preparedStatement, resultSet);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -277,21 +295,23 @@ public class QueryUtil {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
-                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?;");
-                preparedStatement.setString(1, numberPlate);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                UploadBean uploadBean = new UploadBean();
-                if (resultSet.first()) {
-                    uploadBean.setCarNum(resultSet.getString("car_num"));
-                    uploadBean.setBeginTime(resultSet.getString("begin_time"));
-                    uploadBean.setEndTime(resultSet.getString("end_time"));
-                    uploadBean.setParkingTime(resultSet.getString("parking_time"));
-                    uploadBean.setPaymentAmount(resultSet.getString("payment_amount"));
-                    uploadBean.setComment(resultSet.getString("comment"));
-                    uploadBean.setStartImage(resultSet.getString("startImage"));
-                    uploadBean.setEndImage(resultSet.getString("endImage"));
+                if (drivingConn != null) {
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from car_information where car_num = ?;");
+                    preparedStatement.setString(1, numberPlate);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    UploadBean uploadBean = new UploadBean();
+                    if (resultSet.first()) {
+                        uploadBean.setCarNum(resultSet.getString("car_num"));
+                        uploadBean.setBeginTime(resultSet.getString("begin_time"));
+                        uploadBean.setEndTime(resultSet.getString("end_time"));
+                        uploadBean.setParkingTime(resultSet.getString("parking_time"));
+                        uploadBean.setPaymentAmount(resultSet.getString("payment_amount"));
+                        uploadBean.setComment(resultSet.getString("comment"));
+                        uploadBean.setStartImage(resultSet.getString("startImage"));
+                        uploadBean.setEndImage(resultSet.getString("endImage"));
+                    }
+                    result.success(uploadBean);
                 }
-                result.success(uploadBean);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
