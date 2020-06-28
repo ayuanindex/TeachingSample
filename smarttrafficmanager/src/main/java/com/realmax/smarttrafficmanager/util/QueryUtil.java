@@ -110,30 +110,38 @@ public class QueryUtil {
      * @param result             查询你结果回调
      */
     public static void queryInductionLine(ArrayList<InductionLineBean> inductionLineBeans, Result result) {
-        try {
-            Connection drivingConn = DbOpenhelper.getDrivingConn();
-            if (drivingConn != null) {
-                PreparedStatement preparedStatement = drivingConn.prepareStatement("select * from signal_info where id in (?, ?);");
-                preparedStatement.setInt(1, inductionLineBeans.get(0).getId());
-                preparedStatement.setInt(2, inductionLineBeans.get(1).getId());
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    for (InductionLineBean inductionLineBean : inductionLineBeans) {
-                        if (resultSet.getInt("id") == inductionLineBean.getId()) {
-                            inductionLineBean.setSignalName(resultSet.getString("signal_name"));
-                            inductionLineBean.setSignalText(resultSet.getString("signal_text"));
-                            inductionLineBean.setSignalType(resultSet.getString("signal_type"));
-                            inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
-                            break;
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                if (drivingConn != null) {
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement("SELECT * FROM signal_info WHERE id in (?,?,?,?,?,?,?,?);");
+                    preparedStatement.setInt(1, inductionLineBeans.get(0).getId());
+                    preparedStatement.setInt(2, inductionLineBeans.get(1).getId());
+                    preparedStatement.setInt(3, inductionLineBeans.get(2).getId());
+                    preparedStatement.setInt(4, inductionLineBeans.get(3).getId());
+                    preparedStatement.setInt(5, inductionLineBeans.get(4).getId());
+                    preparedStatement.setInt(6, inductionLineBeans.get(5).getId());
+                    preparedStatement.setInt(7, inductionLineBeans.get(6).getId());
+                    preparedStatement.setInt(8, inductionLineBeans.get(7).getId());
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    while (resultSet.next()) {
+                        for (InductionLineBean inductionLineBean : inductionLineBeans) {
+                            if (resultSet.getInt("id") == inductionLineBean.getId()) {
+                                inductionLineBean.setSignalName(resultSet.getString("signal_name"));
+                                inductionLineBean.setSignalText(resultSet.getString("signal_text"));
+                                inductionLineBean.setSignalType(resultSet.getString("signal_type"));
+                                inductionLineBean.setSignalValue(resultSet.getString("signal_value"));
+                                break;
+                            }
                         }
                     }
+                    result.success(inductionLineBeans);
+                    DbOpenhelper.closeAll(preparedStatement, resultSet);
                 }
-                result.success(inductionLineBeans);
-                DbOpenhelper.closeAll(preparedStatement, resultSet);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     /**

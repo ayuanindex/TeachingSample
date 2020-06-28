@@ -1,8 +1,6 @@
 package com.realmax.base.tcp;
 
 
-import android.util.Log;
-
 import java.nio.charset.StandardCharsets;
 
 import io.netty.buffer.ByteBuf;
@@ -29,7 +27,7 @@ public abstract class BaseNettyHandler extends SimpleChannelInboundHandler<ByteB
 
     @Override
     protected void messageReceived(ChannelHandlerContext channelHandlerContext, ByteBuf msg) {
-        Log.i(TAG, "channelRead0: client channelRead..哈哈哈");
+        /*Log.i(TAG, "channelRead0: client channelRead..哈哈哈");*/
         ByteBuf buf = msg.readBytes(msg.readableBytes());
         String s = buf.toString(StandardCharsets.UTF_8);
         /*String s = buf.toString(StandardCharsets.UTF_8);*/

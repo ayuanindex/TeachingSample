@@ -36,8 +36,15 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
 
     public void initData() {
         startCamera();
+        /*// 获取所有感应线的状态
+        getAllInductionLine();*/
+        // 开启循环检测感应线状态
         getEntranceStatus();
     }
+
+    /*private void getAllInductionLine() {
+        controlLogic.getAllInductionLine();
+    }*/
 
     /**
      * 开启出入口的循环检测
@@ -143,5 +150,35 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
     @Override
     public void onDestroy() {
         controlLogic.onDestroy();
+    }
+
+    /**
+     * 设置进出感应线的状态
+     *
+     * @param PassInAndOut 进出的选择
+     * @param value        状态设置
+     */
+    @Override
+    public void setLineStatus(ControlLogic.Line PassInAndOut, int value) {
+        // 初始化状态
+        /*controlView.setLineWidgetStatus(0, 0);*/
+
+        switchToMainThread(() -> {
+            if (PassInAndOut == ControlLogic.Line.ENTER) {
+                controlView.setLineWidgetStatus(value, 0);
+            } else if (PassInAndOut == ControlLogic.Line.OUT) {
+                controlView.setLineWidgetStatus(0, value);
+            }
+        });
+    }
+
+    /**
+     * 设置单选按钮的状态
+     *
+     * @param line
+     */
+    @Override
+    public void selectRadiuButton(ControlLogic.Line line) {
+        switchToMainThread(() -> controlView.selectRadiuButton(line));
     }
 }

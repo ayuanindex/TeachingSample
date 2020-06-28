@@ -2,9 +2,10 @@ package com.realmax.smarttrafficmanager.activity.control;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -32,6 +33,11 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     private int barrierId = SOUTH_ENTRY;
     private int entryId = 17;
     private int outId = 18;
+    private String deviceType = "ETC收费站";
+    private RadioButton rbSouthEnter;
+    private RadioButton rbSouthOut;
+    private RadioButton rbNorthEnter;
+    private RadioButton rbNorthOut;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,10 +52,10 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
         ivImage = findViewById(R.id.ivImage);
         tvNumberPlate = findViewById(R.id.tvNumberPlate);
         rgSelect = findViewById(R.id.rgSelect);
-        // RadioButton rbSouthEnter = findViewById(R.id.rbSouthEnter);
-        // RadioButton rbSouthOut = findViewById(R.id.rbSouthOut);
-        // RadioButton rbNorthEnter = findViewById(R.id.rbNorthEnter);
-        // RadioButton rbNorthOut = findViewById(R.id.rbNorthOut);
+        rbSouthEnter = findViewById(R.id.rbSouthEnter);
+        rbSouthOut = findViewById(R.id.rbSouthOut);
+        rbNorthEnter = findViewById(R.id.rbNorthEnter);
+        rbNorthOut = findViewById(R.id.rbNorthOut);
         cbEnterLine = findViewById(R.id.cbEnterLine);
         cbOutLine = findViewById(R.id.cbOutLine);
         swControl = findViewById(R.id.swControl);
@@ -62,37 +68,33 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
                     // 南进
                     controlPresent.switchCamera("ETC收费站", 2, 1);
                     barrierId = SOUTH_ENTRY;
-                    entryId = 17;
-                    outId = 18;
                     break;
                 case R.id.rbSouthOut:
                     // 南出
                     controlPresent.switchCamera("ETC收费站", 2, 2);
                     barrierId = SOUTH_OUT;
-                    entryId = 19;
-                    outId = 20;
                     break;
                 case R.id.rbNorthEnter:
                     // 北进
-                    controlPresent.switchCamera("ETC收费站", 1, 2);
+                    controlPresent.switchCamera(deviceType, 1, 2);
                     barrierId = NORTH_ENTRY;
-                    entryId = 21;
-                    outId = 22;
                     break;
                 case R.id.rbNorthOut:
                     // 北出
                     controlPresent.switchCamera("ETC收费站", 1, 1);
                     barrierId = NORTH_OUT;
-                    entryId = 23;
-                    outId = 24;
                     break;
                 default:
+                    break;
             }
+            // 获取道闸的状态
             controlPresent.getBarrierStatus(barrierId);
-            controlPresent.getInductionLine(entryId, outId);
         });
 
-        swControl.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> controlPresent.updateBarrier(barrierId, isChecked));
+        swControl.setOnClickListener((View v) -> {
+            swControl.toggle();
+            controlPresent.updateBarrier(barrierId, !swControl.isChecked());
+        });
     }
 
     private void initData() {
@@ -126,6 +128,24 @@ public class ControlActivity extends AppCompatActivity implements ControlView {
     @Override
     public void setNumberPlate(String numberPlate) {
         tvNumberPlate.setText(numberPlate);
+    }
+
+    @Override
+    public void selectRadiuButton(ControlLogic.Line line) {
+        switch (line) {
+            case SOUTHENTRY:
+                rbSouthEnter.setChecked(true);
+                break;
+            case SOUTHOUT:
+                rbSouthOut.setChecked(true);
+                break;
+            case NORTHENTRY:
+                rbNorthEnter.setChecked(true);
+                break;
+            case NORTHOUT:
+                rbNorthOut.setChecked(true);
+                break;
+        }
     }
 
     @Override

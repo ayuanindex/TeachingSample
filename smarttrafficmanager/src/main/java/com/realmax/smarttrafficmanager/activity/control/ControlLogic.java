@@ -53,6 +53,13 @@ public class ControlLogic extends BaseLogic {
     private boolean flag = false;
     private Bitmap numberPlateBitmap;
     private String numberPlate;
+    private String deviceType = "ETC收费站";
+
+    public enum Line {
+        ENTER, OUT,
+        SOUTHENTRY, SOUTHOUT, NORTHENTRY, NORTHOUT
+    }
+
     /**
      * 2020-03-31 00:00:00.0
      */
@@ -220,8 +227,10 @@ public class ControlLogic extends BaseLogic {
                     controlUiRefresh.setBarrierStatus(Integer.parseInt(barrierBean.getSignalValue()));
                 });
 
-                QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
-                    /*L.e(inductionLineBeans.toString());*/
+                getAllInductionLine();
+
+                /*QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
+                 *//*L.e(inductionLineBeans.toString());*//*
                     controlUiRefresh.setLineWidgetStatus(inductionLineBeans);
 
                     // 根据感应线状态拍摄图片
@@ -242,7 +251,7 @@ public class ControlLogic extends BaseLogic {
                         // 有车压线
                         identifyTheLicensePlate();
                     }
-                });
+                });*/
             }
         };
         timer.schedule(task, 0, 100);
@@ -262,7 +271,8 @@ public class ControlLogic extends BaseLogic {
                 isOpen = false;
                 NumberPlateORC.getNumberPlate(bitmap, (String numberPlate) -> {
                     if (!TextUtils.isEmpty(numberPlate)) {
-                        isOpen = false;
+                        isOpen = true;
+                        flag = false;
                         numberPlateBitmap = bitmap;
                         this.numberPlate = numberPlate;
                         // 将车牌刷新到界面上
@@ -296,6 +306,133 @@ public class ControlLogic extends BaseLogic {
 
     public void setControlUiRefresh(ControlUiRefresh controlUiRefresh) {
         this.controlUiRefresh = controlUiRefresh;
+    }
+
+    /**
+     * 获取所有感应线的状态
+     */
+    public void getAllInductionLine() {
+        ArrayList<InductionLineBean> inductionLineBeans = new ArrayList<>();
+        // 南入  入车
+        inductionLineBeans.add(new InductionLineBean(17));
+        // 南入  出车
+        inductionLineBeans.add(new InductionLineBean(18));
+        // 南出  入车
+        inductionLineBeans.add(new InductionLineBean(19));
+        // 南出  出车
+        inductionLineBeans.add(new InductionLineBean(20));
+
+        // 北入  入车
+        inductionLineBeans.add(new InductionLineBean(21));
+        // 北入  出车
+        inductionLineBeans.add(new InductionLineBean(22));
+        // 北出  入车
+        inductionLineBeans.add(new InductionLineBean(23));
+        // 北出  出车
+        inductionLineBeans.add(new InductionLineBean(24));
+        QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
+            /*L.e(inductionLineBeans.toString());*/
+            for (InductionLineBean inductionLineBean : inductionLineBeans) {
+                if (!TextUtils.isEmpty(inductionLineBean.getSignalValue())) {
+                    int value = Integer.parseInt(inductionLineBean.getSignalValue());
+                    if (value == 1) {
+                        setWidgetStatus(inductionLineBean.getId(), value);
+                        // 开始进行拍照
+                        break;
+                    }
+
+                    if (inductionLineBean.getId() == inductionLineBeans.get(inductionLineBeans.size() - 1).getId()) {
+                        controlUiRefresh.setLineStatus(Line.ENTER, 0);
+                        controlUiRefresh.setLineStatus(Line.OUT, 0);
+                    }
+
+                    if (flag) {
+                        startRecognition();
+                    }
+                } else {
+                    L.e("没有读取到状态");
+                }
+            }
+        });
+    }
+
+    /**
+     * 开始识别车牌号
+     */
+    private void startRecognition() {
+        if (isOpen) {
+            L.e("开始进行车牌识别");
+            identifyTheLicensePlate();
+        }
+    }
+
+    /**
+     * 检测到压线的线，并切换到对应的摄像头
+     *
+     * @param id    感应线的ID
+     * @param value 感应线的状态值
+     */
+    private void setWidgetStatus(int id, int value) {
+        L.e("压线的是：-----------" + id);
+        // true 为开始识别，false为停止识别
+        flag = id % 2 != 0;
+
+        switch (id) {
+            // 南入
+            case 17:
+                barrierId = 25;
+                startCamera(deviceType, 2, 1);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
+                break;
+            case 18:
+                barrierId = 25;
+                startCamera(deviceType, 2, 1);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
+                break;
+            // 南出
+            case 19:
+                barrierId = 26;
+                startCamera(deviceType, 2, 2);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
+                break;
+            case 20:
+                barrierId = 26;
+                startCamera(deviceType, 2, 2);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
+                break;
+            // 北入
+            case 21:
+                barrierId = 27;
+                startCamera(deviceType, 1, 2);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
+                break;
+            case 22:
+                barrierId = 27;
+                startCamera(deviceType, 1, 2);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
+                break;
+            // 北出
+            case 23:
+                barrierId = 28;
+                startCamera(deviceType, 1, 1);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHOUT);
+                break;
+            case 24:
+                barrierId = 28;
+                startCamera(deviceType, 1, 1);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHOUT);
+                break;
+        }
+        // 获取切换到的入口的道闸状态
+        getBarrierStatus(barrierId);
     }
 
     interface ControlUiRefresh extends BaseUiRefresh {
@@ -332,5 +469,18 @@ public class ControlLogic extends BaseLogic {
          * 结束时调用
          */
         void onDestroy();
+
+        /**
+         * 设置感应线的状态
+         *
+         * @param PassInAndOut 进出的选择
+         * @param value        状态设置
+         */
+        void setLineStatus(Line PassInAndOut, int value);
+
+        /**
+         * 设置单选按钮的状态
+         */
+        void selectRadiuButton(Line line);
     }
 }

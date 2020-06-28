@@ -38,4 +38,11 @@ public interface ControlView {
     void setLineWidgetStatus(int entryStatus, int outStatus);
 
     void setNumberPlate(String numberPlate);
+
+    /**
+     * 设置单选按钮的状态
+     *
+     * @param line
+     */
+    void selectRadiuButton(ControlLogic.Line line);
 }

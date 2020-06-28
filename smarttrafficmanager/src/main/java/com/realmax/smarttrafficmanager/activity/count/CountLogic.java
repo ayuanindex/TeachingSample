@@ -30,8 +30,6 @@ public class CountLogic extends BaseLogic {
             public void run() {
                 parkingBeans = new ArrayList<>();
                 QueryUtil.queryParking(parkingBeans, (Object object) -> countUiRefresh.setListData(parkingBeans));
-                /*parkingBeans.clear();
-                QueryUtil.queryParking(parkingBeans, (Object object) -> countUiRefresh.refreshListView(parkingBeans));*/
             }
         };
         timer.schedule(task, 0, 500);
