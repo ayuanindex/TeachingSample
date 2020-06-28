@@ -69,9 +69,10 @@ public class ControlLogic extends BaseLogic {
     private Timer timerParking;
     private TimerTask taskParking;
 
+
     public enum Line {
         ENTER, OUT,
-        SOUTHENTRY, SOUTHOUT, NORTHENTRY, NORTHOUT
+        SOUTHENTRY, SOUTHOUT, NORTHENTRY, NORTHOUT;
     }
 
     /**
@@ -291,8 +292,6 @@ public class ControlLogic extends BaseLogic {
      */
     private void queryParkingRecord(String numberPlate) {
         if (isEnter) {
-            calculateCost(numberPlate);
-        } else {
             timerParking = new Timer();
             taskParking = new TimerTask() {
                 @Override
@@ -302,6 +301,8 @@ public class ControlLogic extends BaseLogic {
                 }
             };
             timerParking.schedule(taskParking, 0, 1000);
+        } else {
+            calculateCost(numberPlate);
         }
 
     }
@@ -350,6 +351,7 @@ public class ControlLogic extends BaseLogic {
             timerParking.cancel();
             timerParking = null;
         }
+
         if (taskParking != null) {
             taskParking.cancel();
             taskParking = null;
@@ -418,7 +420,9 @@ public class ControlLogic extends BaseLogic {
         }
 
         // 出场取消循环
-        if (!isEnter) {
+        if (isEnter) {
+            /*isEnter = false;*/
+            L.e("取消了定时器");
             if (timerParking != null) {
                 timerParking.cancel();
                 timerParking = null;
@@ -438,10 +442,10 @@ public class ControlLogic extends BaseLogic {
      */
     private void setWidgetStatus(int id, int value) {
         L.e("压线的是：-----------" + id);
-        if (id == 17 || id == 18 || id == 21 || id == 22) {
-            isEnter = true;
-        } else {
+        if (id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 24) {
             isEnter = false;
+        } else {
+            isEnter = true;
         }
 
         // true 为开始识别，false为停止识别
