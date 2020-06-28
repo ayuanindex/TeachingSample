@@ -23,4 +23,11 @@ public interface CountView {
      * @param parkingBeans 停车位集合
      */
     void setListData(ArrayList<ParkingBean> parkingBeans);
+
+    /**
+     * 刷新集合
+     *
+     * @param parkingBeans 停车位集合
+     */
+    void refreshListView(ArrayList<ParkingBean> parkingBeans);
 }

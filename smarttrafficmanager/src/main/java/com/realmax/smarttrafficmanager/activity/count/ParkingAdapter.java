@@ -13,14 +13,18 @@ import java.util.ArrayList;
 
 public class ParkingAdapter extends BaseAdapter {
 
-    private final ArrayList<ParkingBean> parkingBeans;
-    private final CountLogic.CountUiRefresh countUiRefresh;
+    private ArrayList<ParkingBean> parkingBeans;
+    private CountLogic.CountUiRefresh countUiRefresh;
     private ImageView ivIcon;
     private TextView tvPosition;
 
     public ParkingAdapter(ArrayList<ParkingBean> parkingBeans, CountLogic.CountUiRefresh countUiRefresh) {
         this.parkingBeans = parkingBeans;
         this.countUiRefresh = countUiRefresh;
+    }
+
+    public void setParkingBeans(ArrayList<ParkingBean> parkingBeans) {
+        this.parkingBeans = parkingBeans;
     }
 
     @Override

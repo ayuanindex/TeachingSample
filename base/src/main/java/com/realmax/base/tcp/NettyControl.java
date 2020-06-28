@@ -108,13 +108,17 @@ public class NettyControl {
      * @param camera 发送消息使用的Handler标示符
      */
     public static void sendWeatherCmd(String camera) {
-        CustomerHandlerBase customerHandler = getHandlerHashMap().get(camera);
-        if (customerHandler != null) {
-            ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
-            if (handlerContext != null) {
-                String command = "{\"cmd\": \"pull\"}";
-                handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x03)));
+        try {
+            CustomerHandlerBase customerHandler = getHandlerHashMap().get(camera);
+            if (customerHandler != null) {
+                ChannelHandlerContext handlerContext = customerHandler.getHandlerContext();
+                if (handlerContext != null) {
+                    String command = "{\"cmd\": \"pull\"}";
+                    handlerContext.writeAndFlush(Unpooled.copiedBuffer(option(EncodeAndDecode.getStrUnicode(command), (byte) 0x03)));
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

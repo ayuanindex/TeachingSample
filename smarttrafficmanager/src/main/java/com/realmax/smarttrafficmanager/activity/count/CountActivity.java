@@ -48,6 +48,13 @@ public class CountActivity extends AppCompatActivity implements CountView {
     }
 
     @Override
+    public void refreshListView(ArrayList<ParkingBean> parkingBeans) {
+        if (parkingAdapter != null) {
+            parkingAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         countPresent.onDestroy();
         super.onDestroy();

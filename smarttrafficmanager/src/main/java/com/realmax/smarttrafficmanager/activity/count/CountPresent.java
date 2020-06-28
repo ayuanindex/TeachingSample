@@ -51,8 +51,16 @@ public class CountPresent implements CountLogic.CountUiRefresh {
         switchToMainThread(() -> countView.setListData(parkingBeans));
     }
 
+    /**
+     * 刷新列表
+     * @param parkingBeans 停车位集合
+     */
+    @Override
+    public void refreshListView(ArrayList<ParkingBean> parkingBeans) {
+        switchToMainThread(() -> countView.refreshListView(parkingBeans));
+    }
+
     public void onDestroy() {
         countLogic.onDestroy();
-
     }
 }

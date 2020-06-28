@@ -26,6 +26,7 @@ public class QueryUtil {
                     String sql = "select * from signal_info where id in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);";
                     PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
                     ResultSet resultSet = preparedStatement.executeQuery();
+                    int i = 0;
                     while (resultSet.next()) {
                         ParkingBean e = new ParkingBean();
                         e.setId(resultSet.getInt("id"));

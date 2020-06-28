@@ -23,15 +23,18 @@ public class CountLogic extends BaseLogic {
      * 获取停车位数据
      */
     public void getParking() {
+
         timer = new Timer();
         task = new TimerTask() {
             @Override
             public void run() {
                 parkingBeans = new ArrayList<>();
                 QueryUtil.queryParking(parkingBeans, (Object object) -> countUiRefresh.setListData(parkingBeans));
+                /*parkingBeans.clear();
+                QueryUtil.queryParking(parkingBeans, (Object object) -> countUiRefresh.refreshListView(parkingBeans));*/
             }
         };
-        timer.schedule(task, 0, 100);
+        timer.schedule(task, 0, 500);
     }
 
     public void setCountUiRefresh(CountUiRefresh countUiRefresh) {
@@ -58,5 +61,12 @@ public class CountLogic extends BaseLogic {
          * @param parkingBeans 车位集合
          */
         void setListData(ArrayList<ParkingBean> parkingBeans);
+
+        /**
+         * 刷新列表
+         *
+         * @param parkingBeans 停车位集合
+         */
+        void refreshListView(ArrayList<ParkingBean> parkingBeans);
     }
 }
