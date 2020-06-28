@@ -228,30 +228,6 @@ public class ControlLogic extends BaseLogic {
                 });
 
                 getAllInductionLine();
-
-                /*QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
-                 *//*L.e(inductionLineBeans.toString());*//*
-                    controlUiRefresh.setLineWidgetStatus(inductionLineBeans);
-
-                    // 根据感应线状态拍摄图片
-                    String signalValue = inductionLineBeans.get(0).getSignalValue();
-                    String signalValue1 = inductionLineBeans.get(1).getSignalValue();
-                    int i = Integer.parseInt(signalValue);
-                    int i1 = Integer.parseInt(signalValue1);
-                    if (i == 1) {
-                        L.e("开始进行车牌识别");
-                        flag = true;
-                    } else if (i1 == 1) {
-                        L.e("车牌识别结束");
-                        flag = false;
-                        isOpen = true;
-                    }
-
-                    if (isOpen && flag) {
-                        // 有车压线
-                        identifyTheLicensePlate();
-                    }
-                });*/
             }
         };
         timer.schedule(task, 0, 100);
@@ -277,11 +253,12 @@ public class ControlLogic extends BaseLogic {
                         this.numberPlate = numberPlate;
                         // 将车牌刷新到界面上
                         controlUiRefresh.setNumberPlate(numberPlate);
-                        // 修改道闸状态
-                        updateBarrier(barrierId, true);
+                        /*// 修改道闸状态
+                        updateBarrier(barrierId, true);*/
                         // 获取当前虚拟场景的时间
                         NettyControl.sendWeatherCmd("Camera");
                     } else {
+                        controlUiRefresh.setNumberPlate("未检测出车牌号");
                         isOpen = true;
                     }
                 });

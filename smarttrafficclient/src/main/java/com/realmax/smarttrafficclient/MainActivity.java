@@ -52,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements MainView {
         cardMyCar.setOnClickListener((View v) -> mainPresent.setNumberPlate());
 
         cardPayment.setOnClickListener((View v) -> mainPresent.startPayment());
+
+        tvDescription.setOnClickListener((View v) -> {
+            mainPresent.queryRecode();
+        });
     }
 
     private void initData() {

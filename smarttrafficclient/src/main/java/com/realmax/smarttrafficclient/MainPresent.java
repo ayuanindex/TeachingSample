@@ -111,4 +111,8 @@ public class MainPresent implements MainLogic.MainUiRefresh {
     public void setWidget(String message) {
         switchToMainThread(() -> mainView.setWidget(message));
     }
+
+    public void queryRecode() {
+        mainLogic.queryRecode();
+    }
 }

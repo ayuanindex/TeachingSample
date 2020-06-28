@@ -289,6 +289,10 @@ public class MainLogic extends BaseLogic {
         }
     }
 
+    public void queryRecode() {
+        queryParkingRecord(SpUtil.getString(NUMBER_PLATE, ""));
+    }
+
     interface MainUiRefresh extends BaseUiRefresh {
 
         /**
