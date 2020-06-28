@@ -59,6 +59,33 @@ public class QueryUtil {
         });
     }
 
+    /**
+     * 缴费
+     *
+     * @param numberPlate 需要缴费的车牌号
+     * @param result      回调
+     */
+    public static void updateParkingRecord(String numberPlate, Result result) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                if (drivingConn != null) {
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement("update car_information set payment_amount = ? where car_num= ?;");
+                    preparedStatement.setString(1, "已缴费");
+                    preparedStatement.setString(2, numberPlate);
+                    int i = preparedStatement.executeUpdate();
+                    if (i > 0) {
+                        result.success(true);
+                    } else {
+                        result.success(false);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 
     public interface Result {
         void success(Object object);

@@ -33,7 +33,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:text="车牌识别:XXX" />
+            android:gravity="center"
+            android:text="车牌号:XXX\n入场时间:无—出场时间:无\n停车时长:无\n需缴费:无—缴费状态:无" />
     </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout

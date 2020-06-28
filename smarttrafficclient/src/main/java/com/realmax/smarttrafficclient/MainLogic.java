@@ -94,19 +94,33 @@ public class MainLogic extends BaseLogic {
 
         PaymentViewHolder holder = new PaymentViewHolder(inflate);
 
-        QueryUtil.deleteParkingRecord(numberPlate, (Object object) -> {
+        QueryUtil.updateParkingRecord(numberPlate, (Object object) -> {
+            boolean flag = (boolean) object;
             Handler handler = new Handler(Looper.getMainLooper());
-            boolean b = (boolean) object;
             // 模拟缴费过程
             handler.postDelayed(() -> {
                 holder.pbPayProgress.setVisibility(View.GONE);
                 holder.ivStatus.setVisibility(View.VISIBLE);
-                holder.ivStatus.setImageResource(b ? R.drawable.pic_success : R.drawable.pic_error);
-                holder.tvPayState.setText(b ? "缴费成功" : "缴费失败");
+                holder.ivStatus.setImageResource(flag ? R.drawable.pic_success : R.drawable.pic_error);
+                holder.tvPayState.setText(flag ? "缴费成功" : "缴费失败");
             }, 1000);
             handler.postDelayed(alertDialog::dismiss, 1800);
             mainUiRefresh.setWidget("暂无缴费单");
         });
+
+        /*QueryUtil.deleteParkingRecord(numberPlate, (Object object) -> {
+            Handler handler = new Handler(Looper.getMainLooper());
+            boolean b = (boolean) object;
+            // 模拟缴费过程
+            handler.postDelayed(() -> {
+                    holder.pbPayProgress.setVisibility(View.GONE);
+                    holder.ivStatus.setVisibility(View.VISIBLE);
+                    holder.ivStatus.setImageResource(b ? R.drawable.pic_success : R.drawable.pic_error);
+                holder.tvPayState.setText(b ? "缴费成功" : "缴费失败");
+            }, 1000);
+            handler.postDelayed(alertDialog::dismiss, 1800);
+            mainUiRefresh.setWidget("暂无缴费单");
+        });*/
         alertDialog.show();
     }
 
@@ -135,31 +149,38 @@ public class MainLogic extends BaseLogic {
      */
     private void queryParkingRecord(String numberPlate) {
         QueryUtil.queryParkingRecord(numberPlate, (Object object) -> {
-            ParkingRecordBean recordBean = (ParkingRecordBean) object;
-            if (recordBean.getBeginTime() != null) {
-                String year = yearDataFormat.format(new Date()) + " " + weatherBean.getTime();
-                Date start = simpleDateFormat.parse(recordBean.getBeginTime(), new ParsePosition(0));
-                Date end;
-                if (TextUtils.isEmpty(recordBean.getEndTime())) {
-                    end = simpleDateFormat.parse(year, new ParsePosition(0));
-                } else {
-                    end = simpleDateFormat.parse(recordBean.getEndTime(), new ParsePosition(0));
-                }
+            try {
+                ParkingRecordBean recordBean = (ParkingRecordBean) object;
+                if (recordBean.getBeginTime() != null) {
+                    /*String year = yearDataFormat.format(new Date()) + " " + weatherBean.getTime();*/
+                    // 格式化开始时间
+                    Date start = simpleDateFormat.parse(recordBean.getBeginTime(), new ParsePosition(0));
+                    Date end;
+                    if (TextUtils.isEmpty(recordBean.getEndTime())) {
+                        /*end = simpleDateFormat.parse(year, new ParsePosition(0));*/
+                        end = new Date();
+                    } else {
+                        end = simpleDateFormat.parse(recordBean.getEndTime(), new ParsePosition(0));
+                        // 格式化结束时间
+                    }
 
-                if (start != null && end != null) {
-                    long timeDifference = end.getTime() - start.getTime();
-                    long days = timeDifference / (1000 * 60 * 60 * 24);
-                    long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
-                    long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
-                    long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
-                    String message = "开始时间：" + recordBean.getBeginTime() + "\n" +
-                            "结束时间：" + recordBean.getEndTime() + "\n" +
-                            "停车时长：" + ((days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"))) + "\n" +
-                            "需缴费：" + pay + "元," +
-                            "缴费状态:" + recordBean.getPaymentAmount();
-                    mainUiRefresh.setWidget(message);
-                    L.e(message);
+                    if (start != null && end != null) {
+                        long timeDifference = end.getTime() - start.getTime();
+                        long days = timeDifference / (1000 * 60 * 60 * 24);
+                        long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+                        long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
+                        long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
+                        String message = "开始时间：" + recordBean.getBeginTime() + "\n" +
+                                "结束时间：" + recordBean.getEndTime() + "\n" +
+                                "停车时长：" + ((days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"))) + "\n" +
+                                "需缴费：" + pay + "元," +
+                                "缴费状态:" + recordBean.getPaymentAmount();
+                        mainUiRefresh.setWidget(message);
+                        L.e(message);
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }

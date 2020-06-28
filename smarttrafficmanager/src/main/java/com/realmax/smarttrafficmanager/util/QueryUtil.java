@@ -180,7 +180,7 @@ public class QueryUtil {
      * @param finalCurrentTime 当前时间
      * @param imageUrl         上传后的图片地址
      */
-    public static void insertParkingRecords(String numberPlate, String finalCurrentTime, String imageUrl) {
+    public static void insertParkingRecords(String numberPlate, String finalCurrentTime, String imageUrl, Result result) {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
@@ -200,6 +200,7 @@ public class QueryUtil {
                     preparedStatement.setString(5, imageUrl);
                     preparedStatement.executeUpdate();
                     DbOpenhelper.closeAll(preparedStatement);
+                    result.success(null);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

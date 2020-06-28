@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi;
 import com.google.gson.Gson;
 import com.realmax.base.BaseLogic;
 import com.realmax.base.BaseUiRefresh;
+import com.realmax.base.bean.ParkingRecordBean;
 import com.realmax.base.ftp.FTPUtil;
 import com.realmax.base.tcp.CustomerCallback;
 import com.realmax.base.tcp.CustomerHandlerBase;
@@ -27,6 +28,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,17 +56,23 @@ public class ControlLogic extends BaseLogic {
     private Bitmap numberPlateBitmap;
     private String numberPlate;
     private String deviceType = "ETC收费站";
-
-    public enum Line {
-        ENTER, OUT,
-        SOUTHENTRY, SOUTHOUT, NORTHENTRY, NORTHOUT
-    }
+    private boolean isEnter = false;
 
     /**
      * 2020-03-31 00:00:00.0
      */
     @SuppressLint("SimpleDateFormat")
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @SuppressLint("SimpleDateFormat")
+    private static SimpleDateFormat yearDataFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private WeatherBean weatherBean;
+    private Timer timerParking;
+    private TimerTask taskParking;
+
+    public enum Line {
+        ENTER, OUT,
+        SOUTHENTRY, SOUTHOUT, NORTHENTRY, NORTHOUT
+    }
 
     /**
      * 发送查看虚拟摄像头的命令
@@ -113,7 +121,7 @@ public class ControlLogic extends BaseLogic {
                     jsonStr = msg;
                     controlUiRefresh.setImageData(bitmap);
                 } else if ("ans".equals(jsonObject.optString("cmd"))) {
-                    WeatherBean weatherBean = new Gson().fromJson(msg, WeatherBean.class);
+                    weatherBean = new Gson().fromJson(msg, WeatherBean.class);
                     L.e("拿到虚拟场景的环境信息-------------" + weatherBean.toString());
                     upload(weatherBean);
                 }
@@ -134,7 +142,7 @@ public class ControlLogic extends BaseLogic {
         try {
             // 获取当前系统的年月日
             Date date = new Date();
-            String currentTime = simpleDateFormat.format(date);
+            String currentTime = yearDataFormat.format(date);
             currentTime = currentTime + " " + weatherBean.getTime();
             // 上传图片
             FTPUtil ftpUtil = new FTPUtil();
@@ -158,10 +166,15 @@ public class ControlLogic extends BaseLogic {
                         if (doesItExist) {
                             // 更新
                             QueryUtil.updateParkingRecords(numberPlate, finalCurrentTime, imageUrl, (Object success) -> {
+                                // 查询当前车辆的停车记录
+                                queryParkingRecord(numberPlate);
                             });
                         } else {
                             // 新增停车记录
-                            QueryUtil.insertParkingRecords(numberPlate, finalCurrentTime, imageUrl);
+                            QueryUtil.insertParkingRecords(numberPlate, finalCurrentTime, imageUrl, (Object success) -> {
+                                // 查询当前车辆的停车记录
+                                queryParkingRecord(numberPlate);
+                            });
                         }
                     });
                 }
@@ -252,13 +265,16 @@ public class ControlLogic extends BaseLogic {
                         numberPlateBitmap = bitmap;
                         this.numberPlate = numberPlate;
                         // 将车牌刷新到界面上
-                        controlUiRefresh.setNumberPlate(numberPlate);
-                        /*// 修改道闸状态
-                        updateBarrier(barrierId, true);*/
+                        controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:\n出场时间:" +
+                                "\n停车时长:" +
+                                "\n需缴费:—缴费状态:");
+                        // 在入口时可以自动打开道闸
                         // 获取当前虚拟场景的时间
                         NettyControl.sendWeatherCmd("Camera");
                     } else {
-                        controlUiRefresh.setNumberPlate("未检测出车牌号");
+                        controlUiRefresh.setNumberPlate("未检测出车牌号" + "\n入场时间:无\n出场时间:无" +
+                                "\n停车时长:无" +
+                                "\n需缴费:无—缴费状态:无");
                         isOpen = true;
                     }
                 });
@@ -267,6 +283,47 @@ public class ControlLogic extends BaseLogic {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 停车记录
+     *
+     * @param numberPlate 车牌号
+     */
+    private void queryParkingRecord(String numberPlate) {
+        timerParking = new Timer();
+        taskParking = new TimerTask() {
+            @Override
+            public void run() {
+                com.realmax.base.jdbcConnect.QueryUtil.queryParkingRecord(numberPlate, (Object object) -> {
+                    ParkingRecordBean recordBean = (ParkingRecordBean) object;
+                    if (recordBean.getBeginTime() != null) {
+                        String year = yearDataFormat.format(new Date()) + " " + weatherBean.getTime();
+                        Date start = simpleDateFormat.parse(recordBean.getBeginTime(), new ParsePosition(0));
+                        Date end;
+                        if (TextUtils.isEmpty(recordBean.getEndTime())) {
+                            end = simpleDateFormat.parse(year, new ParsePosition(0));
+                        } else {
+                            end = simpleDateFormat.parse(recordBean.getEndTime(), new ParsePosition(0));
+                        }
+
+                        if (start != null && end != null) {
+                            long timeDifference = end.getTime() - start.getTime();
+                            long days = timeDifference / (1000 * 60 * 60 * 24);
+                            long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+                            long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
+                            long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
+                            controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + recordBean.getEndTime() +
+                                    "\n停车时长:" + ((days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"))) +
+                                    "\n需缴费:" + pay + "—缴费状态:" + recordBean.getPaymentAmount());
+                        }
+                    }
+                });
+            }
+        };
+        timerParking.schedule(taskParking, 0, 1000);
+
+    }
+
 
     public void onDestroy() {
         // 取消定时
@@ -278,6 +335,15 @@ public class ControlLogic extends BaseLogic {
         if (task != null) {
             task.cancel();
             task = null;
+        }
+
+        if (timerParking != null) {
+            timerParking.cancel();
+            timerParking = null;
+        }
+        if (taskParking != null) {
+            taskParking.cancel();
+            taskParking = null;
         }
     }
 
@@ -341,6 +407,18 @@ public class ControlLogic extends BaseLogic {
             L.e("开始进行车牌识别");
             identifyTheLicensePlate();
         }
+
+        // 出场取消循环
+        if (!isEnter) {
+            if (timerParking != null) {
+                timerParking.cancel();
+                timerParking = null;
+            }
+            if (taskParking != null) {
+                taskParking.cancel();
+                taskParking = null;
+            }
+        }
     }
 
     /**
@@ -351,6 +429,12 @@ public class ControlLogic extends BaseLogic {
      */
     private void setWidgetStatus(int id, int value) {
         L.e("压线的是：-----------" + id);
+        if (id == 17 || id == 18 || id == 21 || id == 22) {
+            isEnter = true;
+        } else {
+            isEnter = false;
+        }
+
         // true 为开始识别，false为停止识别
         flag = id % 2 != 0;
 

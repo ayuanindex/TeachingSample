@@ -15,14 +15,14 @@ public class ParkingRecordBean {
      */
 
     private int id;
-    private String carNum;
-    private String beginTime;
-    private String endTime;
-    private String parkingTime;
-    private String paymentAmount;
-    private String comment;
-    private String startImage;
-    private String endImage;
+    private String carNum = "";
+    private String beginTime = "";
+    private String endTime = "";
+    private String parkingTime = "";
+    private String paymentAmount = "";
+    private String comment = "";
+    private String startImage = "";
+    private String endImage = "";
 
     public int getId() {
         return id;
