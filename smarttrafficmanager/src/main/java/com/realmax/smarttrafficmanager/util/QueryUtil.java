@@ -328,6 +328,35 @@ public class QueryUtil {
         });
     }
 
+    /**
+     * 更新停车时长
+     *
+     * @param numberPlate 车牌号
+     * @param parkingTime 时长
+     * @param result      回调
+     */
+    public static void updateParkingTime(String numberPlate, String parkingTime, Result result) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                if (drivingConn != null) {
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement("update car_information set parking_time=? where car_num=?;");
+                    preparedStatement.setString(1, parkingTime);
+                    preparedStatement.setString(2, numberPlate);
+                    int i = preparedStatement.executeUpdate();
+                    if (i > 0) {
+                        result.success(true);
+                    } else {
+                        result.success(true);
+                    }
+                    DbOpenhelper.closeAll(preparedStatement);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public interface Result {
         /**
          * 查询成功回调
