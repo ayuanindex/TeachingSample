@@ -254,7 +254,7 @@ public class QueryUtil {
                 String sql = "";
                 if ("0".equals(flag)) {
                     // 记录开始状态
-                    sql = "update car_information set begin_time=?,startImage=?,comment='1' where car_num=?";
+                    sql = "update car_information set begin_time=?,startImage=?,comment='1',payment_amount='未缴费',end_time=null where car_num=?";
                 } else if ("1".equals(flag)) {
                     // 记录结束状态
                     sql = "update car_information set end_time=?,endImage=?,comment='0' where car_num=?";
