@@ -290,38 +290,47 @@ public class ControlLogic extends BaseLogic {
      * @param numberPlate 车牌号
      */
     private void queryParkingRecord(String numberPlate) {
-        timerParking = new Timer();
-        taskParking = new TimerTask() {
-            @Override
-            public void run() {
-                com.realmax.base.jdbcConnect.QueryUtil.queryParkingRecord(numberPlate, (Object object) -> {
-                    ParkingRecordBean recordBean = (ParkingRecordBean) object;
-                    if (recordBean.getBeginTime() != null) {
-                        String year = yearDataFormat.format(new Date()) + " " + weatherBean.getTime();
-                        Date start = simpleDateFormat.parse(recordBean.getBeginTime(), new ParsePosition(0));
-                        Date end;
-                        if (TextUtils.isEmpty(recordBean.getEndTime())) {
-                            end = simpleDateFormat.parse(year, new ParsePosition(0));
-                        } else {
-                            end = simpleDateFormat.parse(recordBean.getEndTime(), new ParsePosition(0));
-                        }
+        if (isEnter) {
+            calculateCost(numberPlate);
+        } else {
+            timerParking = new Timer();
+            taskParking = new TimerTask() {
+                @Override
+                public void run() {
+                    L.e("正在计算停车费用");
+                    calculateCost(numberPlate);
+                }
+            };
+            timerParking.schedule(taskParking, 0, 1000);
+        }
 
-                        if (start != null && end != null) {
-                            long timeDifference = end.getTime() - start.getTime();
-                            long days = timeDifference / (1000 * 60 * 60 * 24);
-                            long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
-                            long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
-                            long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
-                            controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + recordBean.getEndTime() +
-                                    "\n停车时长:" + ((days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"))) +
-                                    "\n需缴费:" + pay + "—缴费状态:" + recordBean.getPaymentAmount());
-                        }
-                    }
-                });
+    }
+
+    private void calculateCost(String numberPlate) {
+        com.realmax.base.jdbcConnect.QueryUtil.queryParkingRecord(numberPlate, (Object object) -> {
+            ParkingRecordBean recordBean = (ParkingRecordBean) object;
+            if (recordBean.getBeginTime() != null) {
+                String year = yearDataFormat.format(new Date()) + " " + weatherBean.getTime();
+                Date start = simpleDateFormat.parse(recordBean.getBeginTime(), new ParsePosition(0));
+                Date end;
+                if (TextUtils.isEmpty(recordBean.getEndTime())) {
+                    end = simpleDateFormat.parse(year, new ParsePosition(0));
+                } else {
+                    end = simpleDateFormat.parse(recordBean.getEndTime(), new ParsePosition(0));
+                }
+
+                if (start != null && end != null) {
+                    long timeDifference = end.getTime() - start.getTime();
+                    long days = timeDifference / (1000 * 60 * 60 * 24);
+                    long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+                    long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
+                    long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
+                    controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + recordBean.getEndTime() +
+                            "\n停车时长:" + ((days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"))) +
+                            "\n需缴费:" + pay + "—缴费状态:" + recordBean.getPaymentAmount());
+                }
             }
-        };
-        timerParking.schedule(taskParking, 0, 1000);
-
+        });
     }
 
 
