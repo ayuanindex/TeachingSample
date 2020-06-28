@@ -330,6 +330,18 @@ public class ControlLogic extends BaseLogic {
                             "\n停车时长:" + ((days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"))) +
                             "\n需缴费:" + pay + "—缴费状态:" + recordBean.getPaymentAmount());
                 }
+
+                if (recordBean.getPaymentAmount().equals("已缴费")) {
+                    L.e("取消计算");
+                    if (timerParking != null) {
+                        timerParking.cancel();
+                        timerParking = null;
+                    }
+                    if (taskParking != null) {
+                        taskParking.cancel();
+                        taskParking = null;
+                    }
+                }
             }
         });
     }
@@ -419,19 +431,11 @@ public class ControlLogic extends BaseLogic {
             identifyTheLicensePlate();
         }
 
-        // 出场取消循环
+        /*// 出场取消循环
         if (isEnter) {
-            /*isEnter = false;*/
+            *//*isEnter = false;*//*
             L.e("取消了定时器");
-            if (timerParking != null) {
-                timerParking.cancel();
-                timerParking = null;
-            }
-            if (taskParking != null) {
-                taskParking.cancel();
-                taskParking = null;
-            }
-        }
+        }*/
     }
 
     /**
