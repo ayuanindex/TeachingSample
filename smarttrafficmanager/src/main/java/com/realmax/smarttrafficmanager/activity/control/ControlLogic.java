@@ -270,6 +270,9 @@ public class ControlLogic extends BaseLogic {
                                 "\n停车时长:" +
                                 "\n需缴费:—缴费状态:");
                         // 在入口时可以自动打开道闸
+                        if (!isEnter) {
+                            updateBarrier(barrierId, true);
+                        }
                         // 获取当前虚拟场景的时间
                         NettyControl.sendWeatherCmd("Camera");
                     } else {
@@ -292,6 +295,16 @@ public class ControlLogic extends BaseLogic {
      */
     private void queryParkingRecord(String numberPlate) {
         if (isEnter) {
+            if (timerParking != null) {
+                timerParking.cancel();
+                timerParking = null;
+            }
+
+            if (taskParking != null) {
+                taskParking.cancel();
+                taskParking = null;
+            }
+
             timerParking = new Timer();
             taskParking = new TimerTask() {
                 @Override
@@ -333,9 +346,23 @@ public class ControlLogic extends BaseLogic {
                     QueryUtil.updateParkingTime(numberPlate, parkingTime, object1 -> {
                         // 更新成功
                     });
+
+                    if (pay == 0) {
+                        updateBarrier(barrierId, true);
+
+                        if (timerParking != null) {
+                            timerParking.cancel();
+                            timerParking = null;
+                        }
+                        if (taskParking != null) {
+                            taskParking.cancel();
+                            taskParking = null;
+                        }
+                    }
                 }
 
                 if (recordBean.getPaymentAmount().equals("已缴费")) {
+                    updateBarrier(barrierId, true);
                     L.e("取消计算");
                     if (timerParking != null) {
                         timerParking.cancel();
