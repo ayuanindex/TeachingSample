@@ -1,5 +1,6 @@
 package com.realmax.smarttrafficclient;
 
+import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -7,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.realmax.base.App;
 import com.realmax.smarttrafficclient.bean.WeatherBean;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author ayuan
@@ -38,8 +42,10 @@ public class MainPresent implements MainLogic.MainUiRefresh {
      * 初始化
      */
     public void initData() {
-        // 连接大虚拟场景获取天气信息
+        // 连接虚拟场景获取天气信息
         connectVirtualScene();
+
+        setWeatherToWidget(null);
 
         // 从Sp中读取车牌号并显示
         showNumberPlate();
@@ -101,7 +107,17 @@ public class MainPresent implements MainLogic.MainUiRefresh {
      */
     @Override
     public void setWeatherToWidget(WeatherBean weatherBean) {
-        switchToMainThread(() -> mainView.setWeatherToWidget(weatherBean, mainLogic.getWeatherIcon(weatherBean)));
+        switchToMainThread(() -> {
+            /*mainView.setWeatherToWidget(weatherBean, mainLogic.getWeatherIcon(weatherBean));*/
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+            WeatherBean bean = new WeatherBean();
+            bean.setHumi(16);
+            bean.setTemp(20);
+            bean.setTime(simpleDateFormat.format(new Date()));
+            bean.setWeather("晴天");
+            bean.setWindSpeed(5);
+            mainView.setWeatherToWidget(bean, mainLogic.getWeatherIcon(bean));
+        });
     }
 
     /**

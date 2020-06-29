@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
      */
     @SuppressLint("SetTextI18n")
     @Override
-    public void setWeatherToWidget(WeatherBean weatherBean, int weatherIcon) {
+    public void setWeatherToWidget(WeatherBean weatherBean, @DrawableRes int weatherIcon) {
         tvTime.setText(weatherBean.getTime().substring(0, 5));
         ivWeatherIcon.setImageResource(weatherIcon);
         tvTemperature.setText(weatherBean.getTemp() + "ºC");

@@ -329,7 +329,7 @@ public class ControlLogic extends BaseLogic {
                     String parkingTime = (days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"));
                     controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + recordBean.getEndTime() +
                             "\n停车时长:" + parkingTime +
-                            "\n需缴费:" + pay + "—缴费状态:" + recordBean.getPaymentAmount());
+                            "\n需缴费:" + pay + "元—缴费状态:" + recordBean.getPaymentAmount());
                     QueryUtil.updateParkingTime(numberPlate, parkingTime, object1 -> {
                         // 更新成功
                     });

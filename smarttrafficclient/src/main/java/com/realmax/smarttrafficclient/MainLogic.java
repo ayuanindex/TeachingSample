@@ -50,6 +50,7 @@ public class MainLogic extends BaseLogic {
     private WeatherBean weatherBean;
     private String numberPlate;
     private boolean isConnected = false;
+    private ParkingRecordBean recordBean;
 
     /**
      * 显示设置车牌号的Dialog
@@ -75,15 +76,16 @@ public class MainLogic extends BaseLogic {
             mainUiRefresh.showToast("设置成功");
             mainUiRefresh.setNumberPlate(numberPlate);
             // 从数据库中查询当前车辆的停车记录
-            if (isConnected) {
+            queryParkingRecord(numberPlate);
+            /*if (isConnected) {
                 queryParkingRecord(numberPlate);
             } else {
                 NettyControl.sendWeatherCmd("weather");
-            }
+            }*/
             alertDialog.dismiss();
         });
 
-        holder.cardCancel.setOnClickListener(v -> alertDialog.dismiss());
+        holder.cardCancel.setOnClickListener((View v) -> alertDialog.dismiss());
         alertDialog.show();
     }
 
@@ -94,19 +96,28 @@ public class MainLogic extends BaseLogic {
 
         PaymentViewHolder holder = new PaymentViewHolder(inflate);
 
-        QueryUtil.updateParkingRecord(numberPlate, (Object object) -> {
-            boolean flag = (boolean) object;
-            Handler handler = new Handler(Looper.getMainLooper());
-            // 模拟缴费过程
-            handler.postDelayed(() -> {
-                holder.pbPayProgress.setVisibility(View.GONE);
-                holder.ivStatus.setVisibility(View.VISIBLE);
-                holder.ivStatus.setImageResource(flag ? R.drawable.pic_success : R.drawable.pic_error);
-                holder.tvPayState.setText(flag ? "缴费成功" : "缴费失败");
-            }, 1000);
-            handler.postDelayed(alertDialog::dismiss, 1800);
-            mainUiRefresh.setWidget("暂无缴费单");
-        });
+        if (!TextUtils.isEmpty(recordBean.getPaymentAmount())) {
+            if (recordBean.getPaymentAmount().equals("未缴费")) {
+                alertDialog.show();
+                QueryUtil.updateParkingRecord(numberPlate, (Object object) -> {
+                    boolean flag = (boolean) object;
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    // 模拟缴费过程
+                    handler.postDelayed(() -> {
+                        holder.pbPayProgress.setVisibility(View.GONE);
+                        holder.ivStatus.setVisibility(View.VISIBLE);
+                        holder.ivStatus.setImageResource(flag ? R.drawable.pic_success : R.drawable.pic_error);
+                        holder.tvPayState.setText(flag ? "缴费成功" : "缴费失败");
+                    }, 1000);
+                    handler.postDelayed(alertDialog::dismiss, 1800);
+                    queryParkingRecord(numberPlate);
+                    mainUiRefresh.setWidget("暂无缴费单,点此刷新");
+                });
+            } else {
+                mainUiRefresh.showToast("此订单已缴费");
+            }
+        }
+
 
         /*QueryUtil.deleteParkingRecord(numberPlate, (Object object) -> {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -121,7 +132,6 @@ public class MainLogic extends BaseLogic {
             handler.postDelayed(alertDialog::dismiss, 1800);
             mainUiRefresh.setWidget("暂无缴费单");
         });*/
-        alertDialog.show();
     }
 
     /**
@@ -134,11 +144,12 @@ public class MainLogic extends BaseLogic {
         } else {
             mainUiRefresh.setNumberPlate(numberPlate);
             // 从数据库中查询当前车辆的停车记录
-            if (isConnected) {
+            queryParkingRecord(numberPlate);
+            /*if (isConnected) {
                 queryParkingRecord(numberPlate);
             } else {
                 NettyControl.sendWeatherCmd("weather");
-            }
+            }*/
         }
     }
 
@@ -150,7 +161,7 @@ public class MainLogic extends BaseLogic {
     private void queryParkingRecord(String numberPlate) {
         QueryUtil.queryParkingRecord(numberPlate, (Object object) -> {
             try {
-                ParkingRecordBean recordBean = (ParkingRecordBean) object;
+                recordBean = (ParkingRecordBean) object;
                 if (recordBean.getBeginTime() != null) {
                     /*String year = yearDataFormat.format(new Date()) + " " + weatherBean.getTime();*/
                     // 格式化开始时间
@@ -251,7 +262,7 @@ public class MainLogic extends BaseLogic {
                 }
             });
         });
-        alertDialog.show();
+        /*alertDialog.show();*/
     }
 
     /**
