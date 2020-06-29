@@ -270,9 +270,9 @@ public class ControlLogic extends BaseLogic {
                                 "\n停车时长:" +
                                 "\n需缴费:—缴费状态:");
                         // 在入口时可以自动打开道闸
-                        if (!isEnter) {
+                        /*if (!isEnter) {
                             updateBarrier(barrierId, true);
-                        }
+                        }*/
                         // 获取当前虚拟场景的时间
                         NettyControl.sendWeatherCmd("Camera");
                     } else {
@@ -347,7 +347,7 @@ public class ControlLogic extends BaseLogic {
                         // 更新成功
                     });
 
-                    if (pay == 0) {
+                    if (pay == 0 && (!isEnter && recordBean.getPaymentAmount().equals("未缴费"))) {
                         updateBarrier(barrierId, true);
 
                         if (timerParking != null) {
