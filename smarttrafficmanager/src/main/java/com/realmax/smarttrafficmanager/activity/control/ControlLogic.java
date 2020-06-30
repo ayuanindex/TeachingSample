@@ -180,7 +180,7 @@ public class ControlLogic extends BaseLogic {
             ftpUtil.openConnect();
             String finalCurrentTime = currentTime;
             ftpUtil.compressImage(numberPlateBitmap, String.valueOf(date.getTime()), (File file) -> {
-                // 转换成功
+                // 图片转File成功，并存储到了手机上
                 boolean uploading = ftpUtil.uploading(file, String.valueOf(date.getTime()));
                 L.e("上传状态----------" + uploading);
                 if (uploading) {
@@ -189,7 +189,7 @@ public class ControlLogic extends BaseLogic {
                             L.e("上传照片临时文件已删除");
                         }
                     }
-                    // 拼接地址
+                    // 拼接上传后的图片地址
                     String imageUrl = "http://driving.zuto360.com/upload/" + date.getTime() + ".png";
                     // 查询当前车牌是否已经有停车记录
                     QueryUtil.queryNumberPlate(numberPlate, (Object object) -> {
@@ -299,12 +299,8 @@ public class ControlLogic extends BaseLogic {
      */
     private void setWidgetStatus(int id, int value) {
         L.e("压线的是：-----------" + id);
-        if (id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 24) {
-            isEnter = false;
-        } else {
-            isEnter = true;
-        }
-
+        // 是否是出口压线的标示符
+        isEnter = id == 19 || id == 23;
         // true 为开始识别，false为停止识别
         flag = id % 2 != 0;
 
@@ -421,6 +417,7 @@ public class ControlLogic extends BaseLogic {
                 isOpen = false;
                 NumberPlateORC.getNumberPlate(bitmap, (String numberPlate, int confidence) -> {
                     isOpen = true;
+                    // 对识别出的车牌号进行可信度的判断
                     if (confidence > 98) {
                         if (!TextUtils.isEmpty(numberPlate)) {
                             flag = false;
@@ -455,6 +452,7 @@ public class ControlLogic extends BaseLogic {
      */
     private void queryParkingRecord(String numberPlate) {
         if (isEnter) {
+            isEnter = false;
             // 取消计费
             cancelBilling();
 
@@ -491,8 +489,13 @@ public class ControlLogic extends BaseLogic {
                     long days = timeDifference / (1000 * 60 * 60 * 24);
                     long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
                     long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
-                    long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
-                    String parkingTime = (days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"));
+                    long pay = ((days <= 0 ? 0 : days) * 24 * 5) + ((hours <= 0 ? 0 : hours) * 5) + ((minutes >= 30 ? 1 : 0) * 5);
+                    String parkingTime = "";
+                    if (days <= 0 && hours <= 0 && minutes <= 0) {
+                        parkingTime = "无";
+                    } else {
+                        parkingTime = (days <= 0 ? "" : (days + "天，")) + (hours <= 0 ? "" : (hours + "小时，")) + (minutes <= 0 ? "" : (minutes + "分钟"));
+                    }
                     controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + (recordBean.getEndTime() == null ? "无" : recordBean.getEndTime()) +
                             "\n停车时长:" + parkingTime +
                             "\n需缴费:" + pay + "元—缴费状态:" + recordBean.getPaymentAmount());
