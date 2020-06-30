@@ -266,13 +266,9 @@ public class ControlLogic extends BaseLogic {
                         numberPlateBitmap = bitmap;
                         this.numberPlate = numberPlate;
                         // 将车牌刷新到界面上
-                        controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:\n出场时间:" +
-                                "\n停车时长:" +
+                        controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:无\n出场时间:无" +
+                                "\n停车时长:无" +
                                 "\n需缴费:—缴费状态:");
-                        // 在入口时可以自动打开道闸
-                        /*if (!isEnter) {
-                            updateBarrier(barrierId, true);
-                        }*/
                         // 获取当前虚拟场景的时间
                         NettyControl.sendWeatherCmd("Camera");
                     } else {
@@ -340,7 +336,7 @@ public class ControlLogic extends BaseLogic {
                     long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
                     long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
                     String parkingTime = (days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"));
-                    controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + recordBean.getEndTime() +
+                    controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + (recordBean.getEndTime() == null ? "无" : recordBean.getEndTime()) +
                             "\n停车时长:" + parkingTime +
                             "\n需缴费:" + pay + "元—缴费状态:" + recordBean.getPaymentAmount());
                     QueryUtil.updateParkingTime(numberPlate, parkingTime, object1 -> {
