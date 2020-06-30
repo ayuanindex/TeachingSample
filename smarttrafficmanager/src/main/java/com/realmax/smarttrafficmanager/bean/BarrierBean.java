@@ -17,6 +17,13 @@ public class BarrierBean {
     private String signalType;
     private String signalValue;
 
+    public BarrierBean() {
+    }
+
+    public BarrierBean(int id) {
+        this.id = id;
+    }
+
     public int getId() {
         return id;
     }

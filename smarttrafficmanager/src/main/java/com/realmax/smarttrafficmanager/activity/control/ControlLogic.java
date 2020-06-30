@@ -44,10 +44,6 @@ public class ControlLogic extends BaseLogic {
     private Timer timer;
     private TimerTask task;
     private int barrierId = 25;
-    private int entryId = 17;
-    private int outId = 18;
-    private BarrierBean barrierBean;
-    private ArrayList<InductionLineBean> inductionLineBeans;
     private int deviceId;
     private int cameraNum;
     private String jsonStr;
@@ -143,19 +139,9 @@ public class ControlLogic extends BaseLogic {
         task = new TimerTask() {
             @Override
             public void run() {
-                // 道闸
-                barrierBean = new BarrierBean();
-                barrierBean.setId(barrierId);
-
-                // 感应线
-                inductionLineBeans = new ArrayList<>(2);
-                inductionLineBeans.add(new InductionLineBean(entryId));
-                inductionLineBeans.add(new InductionLineBean(outId));
-
                 // 查询道闸状态
-                QueryUtil.queryBarrierStatus(barrierBean, (Object object) -> {
-                    /*L.e(barrierBean.toString());*/
-                    controlUiRefresh.setBarrierStatus(Integer.parseInt(barrierBean.getSignalValue()));
+                QueryUtil.queryBarrierStatus(new BarrierBean(barrierId), (Object object) -> {
+                    controlUiRefresh.setBarrierStatus(Integer.parseInt(((BarrierBean) object).getSignalValue()));
                 });
 
                 getAllInductionLine();
@@ -390,17 +376,6 @@ public class ControlLogic extends BaseLogic {
         QueryUtil.updateBarrierStatus(barrierId, isChecked ? 1 : 0, (Object object) -> {
             // 查询完成
         });
-    }
-
-    /**
-     * 查询感应线状态
-     *
-     * @param entryId 入车
-     * @param outId   出车
-     */
-    public void getInductionLine(int entryId, int outId) {
-        this.entryId = entryId;
-        this.outId = outId;
     }
 
     /**

@@ -116,16 +116,6 @@ public class ControlPresent implements ControlLogic.ControlUiRefresh {
     }
 
     /**
-     * 获取感应线的状态
-     *
-     * @param entryId 入口入车
-     * @param outId   入口出车
-     */
-    public void getInductionLine(int entryId, int outId) {
-        controlLogic.getInductionLine(entryId, outId);
-    }
-
-    /**
      * 设置感应线状态
      *
      * @param inductionLineBeans 感应线集合
