@@ -257,7 +257,7 @@ public class ControlLogic extends BaseLogic {
                     int value = Integer.parseInt(inductionLineBean.getSignalValue());
                     if (value == 1) {
                         setWidgetStatus(inductionLineBean.getId(), value);
-                        // 开始进行拍照
+                        cancelBilling();
                         break;
                     }
 
@@ -274,6 +274,21 @@ public class ControlLogic extends BaseLogic {
                 }
             }
         });
+    }
+
+    /**
+     * 取消计费
+     */
+    private void cancelBilling() {
+        if (timerParking != null) {
+            timerParking.cancel();
+            timerParking = null;
+        }
+
+        if (taskParking != null) {
+            taskParking.cancel();
+            taskParking = null;
+        }
     }
 
     /**
@@ -440,15 +455,8 @@ public class ControlLogic extends BaseLogic {
      */
     private void queryParkingRecord(String numberPlate) {
         if (isEnter) {
-            if (timerParking != null) {
-                timerParking.cancel();
-                timerParking = null;
-            }
-
-            if (taskParking != null) {
-                taskParking.cancel();
-                taskParking = null;
-            }
+            // 取消计费
+            cancelBilling();
 
             timerParking = new Timer();
             taskParking = new TimerTask() {
@@ -495,28 +503,16 @@ public class ControlLogic extends BaseLogic {
                     if (pay == 0 && (!isEnter && recordBean.getPaymentAmount().equals("未缴费"))) {
                         updateBarrier(barrierId, true);
 
-                        if (timerParking != null) {
-                            timerParking.cancel();
-                            timerParking = null;
-                        }
-                        if (taskParking != null) {
-                            taskParking.cancel();
-                            taskParking = null;
-                        }
+                        // 取消计费
+                        cancelBilling();
                     }
                 }
 
                 if (recordBean.getPaymentAmount().equals("已缴费")) {
                     updateBarrier(barrierId, true);
                     L.e("取消计算");
-                    if (timerParking != null) {
-                        timerParking.cancel();
-                        timerParking = null;
-                    }
-                    if (taskParking != null) {
-                        taskParking.cancel();
-                        taskParking = null;
-                    }
+                    // 取消计费
+                    cancelBilling();
                 }
             }
         });
@@ -524,6 +520,9 @@ public class ControlLogic extends BaseLogic {
 
 
     public void onDestroy() {
+        // 取消计费
+        cancelBilling();
+
         // 取消定时
         if (timer != null) {
             timer.cancel();
@@ -533,16 +532,6 @@ public class ControlLogic extends BaseLogic {
         if (task != null) {
             task.cancel();
             task = null;
-        }
-
-        if (timerParking != null) {
-            timerParking.cancel();
-            timerParking = null;
-        }
-
-        if (taskParking != null) {
-            taskParking.cancel();
-            taskParking = null;
         }
     }
 
