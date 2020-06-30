@@ -490,11 +490,9 @@ public class ControlLogic extends BaseLogic {
                     long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
                     long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
                     long pay = ((days <= 0 ? 0 : days) * 24 * 5) + ((hours <= 0 ? 0 : hours) * 5) + ((minutes >= 30 ? 1 : 0) * 5);
-                    String parkingTime = "";
-                    if (days <= 0 && hours <= 0 && minutes <= 0) {
+                    String parkingTime = (days <= 0 ? "" : (days + "天，")) + (hours <= 0 ? "" : (hours + "小时，")) + (minutes <= 0 ? "" : (minutes + "分钟"));
+                    if (TextUtils.isEmpty(parkingTime)) {
                         parkingTime = "无";
-                    } else {
-                        parkingTime = (days <= 0 ? "" : (days + "天，")) + (hours <= 0 ? "" : (hours + "小时，")) + (minutes <= 0 ? "" : (minutes + "分钟"));
                     }
                     controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:" + recordBean.getBeginTime() + "\n出场时间:" + (recordBean.getEndTime() == null ? "无" : recordBean.getEndTime()) +
                             "\n停车时长:" + parkingTime +
