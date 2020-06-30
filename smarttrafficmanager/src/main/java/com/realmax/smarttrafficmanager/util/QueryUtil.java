@@ -333,16 +333,18 @@ public class QueryUtil {
      *
      * @param numberPlate 车牌号
      * @param parkingTime 时长
+     * @param pay         需要缴费金额
      * @param result      回调
      */
-    public static void updateParkingTime(String numberPlate, String parkingTime, Result result) {
+    public static void updateParkingTime(String numberPlate, String parkingTime, long pay, Result result) {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
                 if (drivingConn != null) {
-                    PreparedStatement preparedStatement = drivingConn.prepareStatement("update car_information set parking_time=? where car_num=?;");
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement("update car_information set parking_time=?,comment=? where car_num=?;");
                     preparedStatement.setString(1, parkingTime);
-                    preparedStatement.setString(2, numberPlate);
+                    preparedStatement.setInt(2, (int) pay);
+                    preparedStatement.setString(3, numberPlate);
                     int i = preparedStatement.executeUpdate();
                     if (i > 0) {
                         result.success(true);
