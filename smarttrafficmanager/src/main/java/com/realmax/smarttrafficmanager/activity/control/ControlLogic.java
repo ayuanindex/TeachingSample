@@ -135,6 +135,35 @@ public class ControlLogic extends BaseLogic {
     }
 
     /**
+     * 开启出入口循环检测
+     */
+    public void getEntranceStatus() {
+        timer = new Timer();
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                // 道闸
+                barrierBean = new BarrierBean();
+                barrierBean.setId(barrierId);
+
+                // 感应线
+                inductionLineBeans = new ArrayList<>(2);
+                inductionLineBeans.add(new InductionLineBean(entryId));
+                inductionLineBeans.add(new InductionLineBean(outId));
+
+                // 查询道闸状态
+                QueryUtil.queryBarrierStatus(barrierBean, (Object object) -> {
+                    /*L.e(barrierBean.toString());*/
+                    controlUiRefresh.setBarrierStatus(Integer.parseInt(barrierBean.getSignalValue()));
+                });
+
+                getAllInductionLine();
+            }
+        };
+        timer.schedule(task, 0, 100);
+    }
+
+    /**
      * 上传
      *
      * @param weatherBean 环境数据
@@ -186,6 +215,54 @@ public class ControlLogic extends BaseLogic {
     }
 
     /**
+     * 获取所有感应线的状态
+     */
+    public void getAllInductionLine() {
+        ArrayList<InductionLineBean> inductionLineBeans = new ArrayList<>();
+        // 南入  入车
+        inductionLineBeans.add(new InductionLineBean(17));
+        // 南入  出车
+        inductionLineBeans.add(new InductionLineBean(18));
+        // 南出  入车
+        inductionLineBeans.add(new InductionLineBean(19));
+        // 南出  出车
+        inductionLineBeans.add(new InductionLineBean(20));
+
+        // 北入  入车
+        inductionLineBeans.add(new InductionLineBean(21));
+        // 北入  出车
+        inductionLineBeans.add(new InductionLineBean(22));
+        // 北出  入车
+        inductionLineBeans.add(new InductionLineBean(23));
+        // 北出  出车
+        inductionLineBeans.add(new InductionLineBean(24));
+        QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
+            /*L.e(inductionLineBeans.toString());*/
+            for (InductionLineBean inductionLineBean : inductionLineBeans) {
+                if (!TextUtils.isEmpty(inductionLineBean.getSignalValue())) {
+                    int value = Integer.parseInt(inductionLineBean.getSignalValue());
+                    if (value == 1) {
+                        setWidgetStatus(inductionLineBean.getId(), value);
+                        // 开始进行拍照
+                        break;
+                    }
+
+                    if (inductionLineBean.getId() == inductionLineBeans.get(inductionLineBeans.size() - 1).getId()) {
+                        controlUiRefresh.setLineStatus(Line.ENTER, 0);
+                        controlUiRefresh.setLineStatus(Line.OUT, 0);
+                    }
+
+                    if (flag) {
+                        startRecognition();
+                    }
+                } else {
+                    L.e("没有读取到状态");
+                }
+            }
+        });
+    }
+
+    /**
      * 查询道闸状态
      *
      * @param barrierId 道闸在数据库中的ID
@@ -216,35 +293,6 @@ public class ControlLogic extends BaseLogic {
     public void getInductionLine(int entryId, int outId) {
         this.entryId = entryId;
         this.outId = outId;
-    }
-
-    /**
-     * 开启出入口循环检测
-     */
-    public void getEntranceStatus() {
-        timer = new Timer();
-        task = new TimerTask() {
-            @Override
-            public void run() {
-                // 道闸
-                barrierBean = new BarrierBean();
-                barrierBean.setId(barrierId);
-
-                // 感应线
-                inductionLineBeans = new ArrayList<>(2);
-                inductionLineBeans.add(new InductionLineBean(entryId));
-                inductionLineBeans.add(new InductionLineBean(outId));
-
-                // 查询道闸状态
-                QueryUtil.queryBarrierStatus(barrierBean, (Object object) -> {
-                    /*L.e(barrierBean.toString());*/
-                    controlUiRefresh.setBarrierStatus(Integer.parseInt(barrierBean.getSignalValue()));
-                });
-
-                getAllInductionLine();
-            }
-        };
-        timer.schedule(task, 0, 100);
     }
 
     /**
@@ -399,54 +447,6 @@ public class ControlLogic extends BaseLogic {
 
     public void setControlUiRefresh(ControlUiRefresh controlUiRefresh) {
         this.controlUiRefresh = controlUiRefresh;
-    }
-
-    /**
-     * 获取所有感应线的状态
-     */
-    public void getAllInductionLine() {
-        ArrayList<InductionLineBean> inductionLineBeans = new ArrayList<>();
-        // 南入  入车
-        inductionLineBeans.add(new InductionLineBean(17));
-        // 南入  出车
-        inductionLineBeans.add(new InductionLineBean(18));
-        // 南出  入车
-        inductionLineBeans.add(new InductionLineBean(19));
-        // 南出  出车
-        inductionLineBeans.add(new InductionLineBean(20));
-
-        // 北入  入车
-        inductionLineBeans.add(new InductionLineBean(21));
-        // 北入  出车
-        inductionLineBeans.add(new InductionLineBean(22));
-        // 北出  入车
-        inductionLineBeans.add(new InductionLineBean(23));
-        // 北出  出车
-        inductionLineBeans.add(new InductionLineBean(24));
-        QueryUtil.queryInductionLine(inductionLineBeans, (Object object) -> {
-            /*L.e(inductionLineBeans.toString());*/
-            for (InductionLineBean inductionLineBean : inductionLineBeans) {
-                if (!TextUtils.isEmpty(inductionLineBean.getSignalValue())) {
-                    int value = Integer.parseInt(inductionLineBean.getSignalValue());
-                    if (value == 1) {
-                        setWidgetStatus(inductionLineBean.getId(), value);
-                        // 开始进行拍照
-                        break;
-                    }
-
-                    if (inductionLineBean.getId() == inductionLineBeans.get(inductionLineBeans.size() - 1).getId()) {
-                        controlUiRefresh.setLineStatus(Line.ENTER, 0);
-                        controlUiRefresh.setLineStatus(Line.OUT, 0);
-                    }
-
-                    if (flag) {
-                        startRecognition();
-                    }
-                } else {
-                    L.e("没有读取到状态");
-                }
-            }
-        });
     }
 
     /**
