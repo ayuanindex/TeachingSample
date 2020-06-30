@@ -57,6 +57,7 @@ public class ControlLogic extends BaseLogic {
     private String numberPlate;
     private String deviceType = "ETC收费站";
     private boolean isEnter = false;
+    private Line inAndOut;
 
     /**
      * 2020-03-31 00:00:00.0
@@ -71,7 +72,7 @@ public class ControlLogic extends BaseLogic {
 
 
     public enum Line {
-        ENTER, OUT,
+        ENTER, OUT, CONVENTION,
         SOUTHENTRY, SOUTHOUT, NORTHENTRY, NORTHOUT;
     }
 
@@ -194,11 +195,24 @@ public class ControlLogic extends BaseLogic {
                     QueryUtil.queryNumberPlate(numberPlate, (Object object) -> {
                         boolean doesItExist = (boolean) object;
                         if (doesItExist) {
-                            // 更新
-                            QueryUtil.updateParkingRecords(numberPlate, finalCurrentTime, imageUrl, (Object success) -> {
-                                // 查询当前车辆的停车记录
-                                queryParkingRecord(numberPlate);
-                            });
+                            // 更新停车记录
+                            // 根据inAndOut的状态来判断数据库中存储数据的方式
+                            switch (inAndOut) {
+                                case ENTER:
+                                    // 入口记录
+                                    QueryUtil.updateStartTime(numberPlate, finalCurrentTime, imageUrl, (Object success) -> {
+                                        // 查询当前车辆的停车记录
+                                        queryParkingRecord(numberPlate);
+                                    });
+                                    break;
+                                case OUT:
+                                    // 出口记录
+                                    QueryUtil.updateEndTime(numberPlate, finalCurrentTime, imageUrl, (Object success) -> {
+                                        // 查询当前车辆的停车记录
+                                        queryParkingRecord(numberPlate);
+                                    });
+                                    break;
+                            }
                         } else {
                             // 新增停车记录
                             QueryUtil.insertParkingRecords(numberPlate, finalCurrentTime, imageUrl, (Object success) -> {
@@ -283,12 +297,14 @@ public class ControlLogic extends BaseLogic {
             // 南入
             case 17:
                 barrierId = 25;
+                inAndOut = Line.ENTER;
                 startCamera(deviceType, 2, 1);
                 controlUiRefresh.setLineStatus(Line.ENTER, value);
                 controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
                 break;
             case 18:
                 barrierId = 25;
+                inAndOut = Line.CONVENTION;
                 startCamera(deviceType, 2, 1);
                 controlUiRefresh.setLineStatus(Line.OUT, value);
                 controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
@@ -296,12 +312,14 @@ public class ControlLogic extends BaseLogic {
             // 南出
             case 19:
                 barrierId = 26;
+                inAndOut = Line.OUT;
                 startCamera(deviceType, 2, 2);
                 controlUiRefresh.setLineStatus(Line.ENTER, value);
                 controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
                 break;
             case 20:
                 barrierId = 26;
+                inAndOut = Line.CONVENTION;
                 startCamera(deviceType, 2, 2);
                 controlUiRefresh.setLineStatus(Line.OUT, value);
                 controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
@@ -309,12 +327,14 @@ public class ControlLogic extends BaseLogic {
             // 北入
             case 21:
                 barrierId = 27;
+                inAndOut = Line.ENTER;
                 startCamera(deviceType, 1, 2);
                 controlUiRefresh.setLineStatus(Line.ENTER, value);
                 controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
                 break;
             case 22:
                 barrierId = 27;
+                inAndOut = Line.CONVENTION;
                 startCamera(deviceType, 1, 2);
                 controlUiRefresh.setLineStatus(Line.OUT, value);
                 controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
@@ -322,12 +342,14 @@ public class ControlLogic extends BaseLogic {
             // 北出
             case 23:
                 barrierId = 28;
+                inAndOut = Line.OUT;
                 startCamera(deviceType, 1, 1);
                 controlUiRefresh.setLineStatus(Line.ENTER, value);
                 controlUiRefresh.selectRadiuButton(Line.NORTHOUT);
                 break;
             case 24:
                 barrierId = 28;
+                inAndOut = Line.CONVENTION;
                 startCamera(deviceType, 1, 1);
                 controlUiRefresh.setLineStatus(Line.OUT, value);
                 controlUiRefresh.selectRadiuButton(Line.NORTHOUT);

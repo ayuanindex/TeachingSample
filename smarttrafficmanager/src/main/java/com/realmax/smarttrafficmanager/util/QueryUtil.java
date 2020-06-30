@@ -357,6 +357,70 @@ public class QueryUtil {
         });
     }
 
+    /**
+     * 更新入场时间
+     *
+     * @param numberPlate      车牌号
+     * @param finalCurrentTime 入场时间
+     * @param imageUrl         图像地址
+     * @param result           访问数据库的回调
+     */
+    public static void updateStartTime(String numberPlate, String finalCurrentTime, String imageUrl, Result result) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                if (drivingConn != null) {
+                    String sql = "update car_information set begin_time=?,startImage=?,payment_amount='未缴费',end_time=null where car_num=?;";
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                    preparedStatement.setString(1, finalCurrentTime);
+                    preparedStatement.setString(2, imageUrl);
+                    preparedStatement.setString(3, numberPlate);
+                    int i = preparedStatement.executeUpdate();
+                    if (i > 0) {
+                        result.success(true);
+                    } else {
+                        result.success(false);
+                    }
+                    DbOpenhelper.closeAll(preparedStatement);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 更新出场时间
+     *
+     * @param numberPlate      车牌号
+     * @param finalCurrentTime 时间
+     * @param imageUrl         图像地址
+     * @param result           访问数据库的回调
+     */
+    public static void updateEndTime(String numberPlate, String finalCurrentTime, String imageUrl, Result result) {
+        CustomerThread.poolExecutor.execute(() -> {
+            try {
+                Connection drivingConn = DbOpenhelper.getDrivingConn();
+                if (drivingConn != null) {
+                    String sql = "update car_information set end_time=?,endImage=? where car_num=?;";
+                    PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                    preparedStatement.setString(1, finalCurrentTime);
+                    preparedStatement.setString(2, imageUrl);
+                    preparedStatement.setString(3, numberPlate);
+                    int i = preparedStatement.executeUpdate();
+                    if (i > 0) {
+                        result.success(true);
+                    } else {
+                        result.success(false);
+                    }
+                    DbOpenhelper.closeAll(preparedStatement);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public interface Result {
         /**
          * 查询成功回调
