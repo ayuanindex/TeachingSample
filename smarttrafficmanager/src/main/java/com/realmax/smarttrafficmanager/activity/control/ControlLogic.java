@@ -263,6 +263,81 @@ public class ControlLogic extends BaseLogic {
     }
 
     /**
+     * 检测到压线的线，并切换到对应的摄像头
+     *
+     * @param id    感应线的ID
+     * @param value 感应线的状态值
+     */
+    private void setWidgetStatus(int id, int value) {
+        L.e("压线的是：-----------" + id);
+        if (id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 24) {
+            isEnter = false;
+        } else {
+            isEnter = true;
+        }
+
+        // true 为开始识别，false为停止识别
+        flag = id % 2 != 0;
+
+        switch (id) {
+            // 南入
+            case 17:
+                barrierId = 25;
+                startCamera(deviceType, 2, 1);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
+                break;
+            case 18:
+                barrierId = 25;
+                startCamera(deviceType, 2, 1);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
+                break;
+            // 南出
+            case 19:
+                barrierId = 26;
+                startCamera(deviceType, 2, 2);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
+                break;
+            case 20:
+                barrierId = 26;
+                startCamera(deviceType, 2, 2);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
+                break;
+            // 北入
+            case 21:
+                barrierId = 27;
+                startCamera(deviceType, 1, 2);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
+                break;
+            case 22:
+                barrierId = 27;
+                startCamera(deviceType, 1, 2);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
+                break;
+            // 北出
+            case 23:
+                barrierId = 28;
+                startCamera(deviceType, 1, 1);
+                controlUiRefresh.setLineStatus(Line.ENTER, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHOUT);
+                break;
+            case 24:
+                barrierId = 28;
+                startCamera(deviceType, 1, 1);
+                controlUiRefresh.setLineStatus(Line.OUT, value);
+                controlUiRefresh.selectRadiuButton(Line.NORTHOUT);
+                break;
+        }
+        // 获取切换到的入口的道闸状态
+        getBarrierStatus(barrierId);
+    }
+
+    /**
      * 查询道闸状态
      *
      * @param barrierId 道闸在数据库中的ID
@@ -463,81 +538,6 @@ public class ControlLogic extends BaseLogic {
             *//*isEnter = false;*//*
             L.e("取消了定时器");
         }*/
-    }
-
-    /**
-     * 检测到压线的线，并切换到对应的摄像头
-     *
-     * @param id    感应线的ID
-     * @param value 感应线的状态值
-     */
-    private void setWidgetStatus(int id, int value) {
-        L.e("压线的是：-----------" + id);
-        if (id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 24) {
-            isEnter = false;
-        } else {
-            isEnter = true;
-        }
-
-        // true 为开始识别，false为停止识别
-        flag = id % 2 != 0;
-
-        switch (id) {
-            // 南入
-            case 17:
-                barrierId = 25;
-                startCamera(deviceType, 2, 1);
-                controlUiRefresh.setLineStatus(Line.ENTER, value);
-                controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
-                break;
-            case 18:
-                barrierId = 25;
-                startCamera(deviceType, 2, 1);
-                controlUiRefresh.setLineStatus(Line.OUT, value);
-                controlUiRefresh.selectRadiuButton(Line.SOUTHENTRY);
-                break;
-            // 南出
-            case 19:
-                barrierId = 26;
-                startCamera(deviceType, 2, 2);
-                controlUiRefresh.setLineStatus(Line.ENTER, value);
-                controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
-                break;
-            case 20:
-                barrierId = 26;
-                startCamera(deviceType, 2, 2);
-                controlUiRefresh.setLineStatus(Line.OUT, value);
-                controlUiRefresh.selectRadiuButton(Line.SOUTHOUT);
-                break;
-            // 北入
-            case 21:
-                barrierId = 27;
-                startCamera(deviceType, 1, 2);
-                controlUiRefresh.setLineStatus(Line.ENTER, value);
-                controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
-                break;
-            case 22:
-                barrierId = 27;
-                startCamera(deviceType, 1, 2);
-                controlUiRefresh.setLineStatus(Line.OUT, value);
-                controlUiRefresh.selectRadiuButton(Line.NORTHENTRY);
-                break;
-            // 北出
-            case 23:
-                barrierId = 28;
-                startCamera(deviceType, 1, 1);
-                controlUiRefresh.setLineStatus(Line.ENTER, value);
-                controlUiRefresh.selectRadiuButton(Line.NORTHOUT);
-                break;
-            case 24:
-                barrierId = 28;
-                startCamera(deviceType, 1, 1);
-                controlUiRefresh.setLineStatus(Line.OUT, value);
-                controlUiRefresh.selectRadiuButton(Line.NORTHOUT);
-                break;
-        }
-        // 获取切换到的入口的道闸状态
-        getBarrierStatus(barrierId);
     }
 
     interface ControlUiRefresh extends BaseUiRefresh {
