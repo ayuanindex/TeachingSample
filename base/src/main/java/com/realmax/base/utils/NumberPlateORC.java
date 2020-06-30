@@ -28,7 +28,7 @@ public class NumberPlateORC {
                     public void getData(NumberPlateResultBean numberPlateResultBean, Call call, Response response) {
                         if (numberPlateResult != null) {
                             L.e("请求成功--------" + numberPlateResultBean.toString());
-                            numberPlateResult.resultNumberPlate(numberPlateResultBean.getResponse().getNumber());
+                            numberPlateResult.resultNumberPlate(numberPlateResultBean.getResponse().getNumber(), numberPlateResultBean.getResponse().getConfidence());
                         }
                     }
 
@@ -56,7 +56,16 @@ public class NumberPlateORC {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
+    /**
+     * 车牌识别完成回调
+     */
     public interface NumberPlateResult {
-        void resultNumberPlate(String numberPlate);
+        /**
+         * 反馈车牌号和可信度
+         *
+         * @param numberPlate 车牌号
+         * @param confidence  可信度
+         */
+        void resultNumberPlate(String numberPlate, int confidence);
     }
 }

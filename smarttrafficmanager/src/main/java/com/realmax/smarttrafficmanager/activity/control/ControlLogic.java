@@ -382,23 +382,27 @@ public class ControlLogic extends BaseLogic {
                 // 判断当当前摄像头的数据是否是切花后摄像头的数据
                 // 开始获取摄像头中的数据
                 isOpen = false;
-                NumberPlateORC.getNumberPlate(bitmap, (String numberPlate) -> {
-                    if (!TextUtils.isEmpty(numberPlate)) {
-                        isOpen = true;
-                        flag = false;
-                        numberPlateBitmap = bitmap;
-                        this.numberPlate = numberPlate;
-                        // 将车牌刷新到界面上
-                        controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:无\n出场时间:无" +
-                                "\n停车时长:无" +
-                                "\n需缴费:—缴费状态:");
-                        // 获取当前虚拟场景的时间
-                        NettyControl.sendWeatherCmd("Camera");
+                NumberPlateORC.getNumberPlate(bitmap, (String numberPlate, int confidence) -> {
+                    isOpen = true;
+                    if (confidence > 98) {
+                        if (!TextUtils.isEmpty(numberPlate)) {
+                            flag = false;
+                            numberPlateBitmap = bitmap;
+                            this.numberPlate = numberPlate;
+                            // 将车牌刷新到界面上
+                            controlUiRefresh.setNumberPlate(numberPlate + "\n入场时间:无\n出场时间:无" +
+                                    "\n停车时长:无" +
+                                    "\n需缴费:—缴费状态:");
+                            // 获取当前虚拟场景的时间
+                            NettyControl.sendWeatherCmd("Camera");
+                        } else {
+                            controlUiRefresh.setNumberPlate("未检测出车牌号" + "\n入场时间:无\n出场时间:无" +
+                                    "\n停车时长:无" +
+                                    "\n需缴费:无—缴费状态:无");
+                        }
                     } else {
-                        controlUiRefresh.setNumberPlate("未检测出车牌号" + "\n入场时间:无\n出场时间:无" +
-                                "\n停车时长:无" +
-                                "\n需缴费:无—缴费状态:无");
-                        isOpen = true;
+                        // 车牌识别不准确
+                        controlUiRefresh.showToast("车牌识别不准确，请调整车位");
                     }
                 });
             }

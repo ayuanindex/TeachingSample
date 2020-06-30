@@ -146,7 +146,7 @@ public class PaymentLogic extends BaseLogic {
                     if (flag && orc) {
                         orc = false;
                         Bitmap bitmap = EncodeAndDecode.base64ToImage(jsonObject.optString("cameraImg"));
-                        NumberPlateORC.getNumberPlate(bitmap, (String numberPlate) -> {
+                        NumberPlateORC.getNumberPlate(bitmap, (String numberPlate, int confidence) -> {
                             if (numberPlate != null) {
                                 L.e("请求成功------" + numberPlate);
                                 L.e("结束识别");

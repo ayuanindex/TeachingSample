@@ -3,7 +3,6 @@ package com.realmax.base.signature;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.util.Log;
 
 import java.util.Random;
 import java.util.TreeMap;
@@ -62,7 +61,7 @@ public class TencentCloudAPIInitUtil {
         mac.init(secretKeySpec);
         byte[] hash = mac.doFinal(s.getBytes(CHARSET));
         String str = printBase64Binary(hash, 0, hash.length);
-        Log.d(TAG, "签名" + str);
+        /*Log.d(TAG, "签名" + str);*/
         return str;
     }
 
@@ -141,7 +140,7 @@ public class TencentCloudAPIInitUtil {
             s2s.append(k).append("=").append(params.get(k).toString()).append("&");
         }
         String substring = s2s.toString().substring(0, s2s.length() - 1);
-        Log.d(TAG, substring);
+        /*Log.d(TAG, substring);*/
         return substring;
     }
 }
