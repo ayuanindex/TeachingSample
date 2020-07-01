@@ -86,6 +86,49 @@ public class QueryUtil {
         });
     }
 
+    /**
+     * 新增车辆停车历史记录
+     *
+     * @param recordBean 当前车辆出入场情况
+     * @param result     添加成功的回调
+     */
+    public static void addParkingHistory(ParkingRecordBean recordBean, Result result) {
+        queryParkingRecord(recordBean.getCarNum(), object -> {
+            ParkingRecordBean bean = (ParkingRecordBean) object;
+            CustomerThread.poolExecutor.execute(() -> {
+                try {
+                    Connection drivingConn = DbOpenhelper.getDrivingConn();
+                    if (drivingConn != null) {
+                        String sql = "INSERT INTO parking_history (" +
+                                "car_num," +
+                                " begin_time," +
+                                " end_time," +
+                                " parking_time," +
+                                " payment_amount," +
+                                " comment," +
+                                " startImage," +
+                                " endImage" +
+                                ") VALUES (?,?,?,?,?,?,?,?);";
+                        PreparedStatement preparedStatement = drivingConn.prepareStatement(sql);
+                        preparedStatement.setString(1, bean.getCarNum());
+                        preparedStatement.setString(2, bean.getBeginTime());
+                        preparedStatement.setString(3, bean.getEndTime());
+                        preparedStatement.setString(4, bean.getParkingTime());
+                        preparedStatement.setString(5, bean.getPaymentAmount());
+                        preparedStatement.setString(6, bean.getComment());
+                        preparedStatement.setString(7, bean.getStartImage());
+                        preparedStatement.setString(8, bean.getEndImage());
+                        int i = preparedStatement.executeUpdate();
+                        result.success(i > 0);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+
+    }
+
 
     public interface Result {
         void success(Object object);

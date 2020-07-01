@@ -77,11 +77,6 @@ public class MainLogic extends BaseLogic {
             mainUiRefresh.setNumberPlate(numberPlate);
             // 从数据库中查询当前车辆的停车记录
             queryParkingRecord(numberPlate);
-            /*if (isConnected) {
-                queryParkingRecord(numberPlate);
-            } else {
-                NettyControl.sendWeatherCmd("weather");
-            }*/
             alertDialog.dismiss();
         });
 
@@ -110,28 +105,17 @@ public class MainLogic extends BaseLogic {
                         holder.tvPayState.setText(flag ? "缴费成功" : "缴费失败");
                     }, 1000);
                     handler.postDelayed(alertDialog::dismiss, 1800);
-                    queryParkingRecord(numberPlate);
-                    mainUiRefresh.setWidget("暂无缴费单,点此刷新");
+                    // 新增当前车辆的停车历史记录
+                    // 将缴费之后的订单存储到停车历史记录表中
+                    QueryUtil.addParkingHistory(recordBean, object1 -> {
+                        queryParkingRecord(numberPlate);
+                        QueryUtil.deleteParkingRecord(numberPlate, (Object object2) -> mainUiRefresh.setWidget("暂无缴费单,点此刷新"));
+                    });
                 });
             } else {
                 mainUiRefresh.showToast("此订单已缴费");
             }
         }
-
-
-        /*QueryUtil.deleteParkingRecord(numberPlate, (Object object) -> {
-            Handler handler = new Handler(Looper.getMainLooper());
-            boolean b = (boolean) object;
-            // 模拟缴费过程
-            handler.postDelayed(() -> {
-                    holder.pbPayProgress.setVisibility(View.GONE);
-                    holder.ivStatus.setVisibility(View.VISIBLE);
-                    holder.ivStatus.setImageResource(b ? R.drawable.pic_success : R.drawable.pic_error);
-                holder.tvPayState.setText(b ? "缴费成功" : "缴费失败");
-            }, 1000);
-            handler.postDelayed(alertDialog::dismiss, 1800);
-            mainUiRefresh.setWidget("暂无缴费单");
-        });*/
     }
 
     /**
@@ -145,11 +129,6 @@ public class MainLogic extends BaseLogic {
             mainUiRefresh.setNumberPlate(numberPlate);
             // 从数据库中查询当前车辆的停车记录
             queryParkingRecord(numberPlate);
-            /*if (isConnected) {
-                queryParkingRecord(numberPlate);
-            } else {
-                NettyControl.sendWeatherCmd("weather");
-            }*/
         }
     }
 
@@ -181,11 +160,16 @@ public class MainLogic extends BaseLogic {
                         long hours = (timeDifference - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
                         long minutes = (timeDifference - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
                         long pay = (days * 24 * 5) + (hours * 5) + ((minutes >= 30 ? 1 : 0) * 5);
-                        String message = "开始时间：" + recordBean.getBeginTime() + "\n" +
-                                "结束时间：" + recordBean.getEndTime() + "\n" +
-                                "停车时长：" + ((days == 0 ? "" : (days + "天，")) + (hours == 0 ? "" : (hours + "小时，")) + (minutes == 0 ? "" : (minutes + "分钟"))) + "\n" +
+
+                        String parkingTime = (days <= 0 ? "" : (days + "天，")) + (hours <= 0 ? "" : (hours + "小时，")) + (minutes <= 0 ? "" : (minutes + "分钟"));
+                        if (TextUtils.isEmpty(parkingTime)) {
+                            parkingTime = "无";
+                        }
+                        String message = "开始时间：" + (recordBean.getBeginTime() == null ? "无" : recordBean.getBeginTime()) + "\n" +
+                                "结束时间：" + (recordBean.getEndTime() == null ? "无" : recordBean.getEndTime()) + "\n" +
+                                "停车时长：" + parkingTime + "\n" +
                                 "需缴费：" + pay + "元," +
-                                "缴费状态:" + recordBean.getPaymentAmount();
+                                "缴费状态:" + (pay <= 0 ? "无需缴费" : recordBean.getPaymentAmount());
                         mainUiRefresh.setWidget(message);
                         L.e(message);
                     }
