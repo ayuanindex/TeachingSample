@@ -73,7 +73,7 @@
             android:background="@color/colorPrimary"
             android:gravity="center"
             android:padding="10dp"
-            android:text="connect"
+            android:text="连接"
             android:textColor="#ffffff" />
     </com.google.android.material.card.MaterialCardView>
 </RelativeLayout>

@@ -57,7 +57,7 @@ public class SettingActivity extends AppCompatActivity implements SettingView {
     public void setEditAndButton(boolean isConnectHashMap) {
         etIp.setEnabled(!isConnectHashMap);
         etPort.setEnabled(!isConnectHashMap);
-        tvText.setText(isConnectHashMap ? "disConnect" : "connect");
+        tvText.setText(isConnectHashMap ? "断开连接" : "连接");
         tvText.setBackgroundColor(isConnectHashMap ? getColor(R.color.red) : getColor(R.color.colorAccent));
     }
 
