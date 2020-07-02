@@ -477,15 +477,22 @@ public class ControlLogic extends BaseLogic {
                     });
 
                     if (pay == 0 && (!isEnter && recordBean.getPaymentAmount().equals("未缴费"))) {
+                        // 开启道闸，删除正在停车的记录，以为在管理段已经添加到了停车历史记录表中
                         updateBarrier(barrierId, true);
+                        com.realmax.base.jdbcConnect.QueryUtil.deleteParkingRecord(numberPlate, (Object object2) -> {
 
+                        });
                         // 取消计费
                         cancelBilling();
                     }
                 }
 
                 if (recordBean.getPaymentAmount().equals("已缴费")) {
+                    // 开启道闸，删除正在停车的记录，以为在管理段已经添加到了停车历史记录表中
                     updateBarrier(barrierId, true);
+                    com.realmax.base.jdbcConnect.QueryUtil.deleteParkingRecord(numberPlate, (Object object2) -> {
+
+                    });
                     L.e("取消计算");
                     // 取消计费
                     cancelBilling();

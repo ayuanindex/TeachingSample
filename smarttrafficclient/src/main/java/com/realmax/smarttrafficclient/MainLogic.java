@@ -109,7 +109,7 @@ public class MainLogic extends BaseLogic {
                     // 将缴费之后的订单存储到停车历史记录表中
                     QueryUtil.addParkingHistory(recordBean, object1 -> {
                         queryParkingRecord(numberPlate);
-                        QueryUtil.deleteParkingRecord(numberPlate, (Object object2) -> mainUiRefresh.setWidget("暂无缴费单,点此刷新"));
+                        /*QueryUtil.deleteParkingRecord(numberPlate, (Object object2) -> mainUiRefresh.setWidget("暂无缴费单,点此刷新"));*/
                     });
                 });
             } else {
