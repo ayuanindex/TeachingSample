@@ -73,7 +73,7 @@ public class HttpUtil {
                 String string = Objects.requireNonNull(response.body()).string();
                 L.e(string);
                 T t = new Gson().fromJson(string, tClass);
-                result.getData(t, call, response);
+                result.getData(t, string, call, response);
             }
 
             @Override
@@ -137,10 +137,11 @@ public class HttpUtil {
          * 请求成功
          *
          * @param t        范型
+         * @param data     获取到的数据
          * @param call     单个请求/响应对（流）
          * @param response 响应
          */
-        void getData(T t, Call call, Response response);
+        void getData(T t, String data, Call call, Response response);
 
         /**
          * 请求错误

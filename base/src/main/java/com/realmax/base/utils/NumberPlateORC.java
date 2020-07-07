@@ -25,7 +25,7 @@ public class NumberPlateORC {
                 TreeMap<String, Object> init = TencentCloudAPIInitUtil.init(params);
                 HttpUtil.doPost(init, NumberPlateResultBean.class, new HttpUtil.Result<NumberPlateResultBean>() {
                     @Override
-                    public void getData(NumberPlateResultBean numberPlateResultBean, Call call, Response response) {
+                    public void getData(NumberPlateResultBean numberPlateResultBean, String data, Call call, Response response) {
                         if (numberPlateResult != null) {
                             L.e("请求成功--------" + numberPlateResultBean.toString());
                             numberPlateResult.resultNumberPlate(numberPlateResultBean.getResponse().getNumber(), numberPlateResultBean.getResponse().getConfidence());
