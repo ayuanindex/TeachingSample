@@ -109,7 +109,7 @@ public class QueryUtil {
      * @param inductionLineBeans 感应线集合
      * @param result             查询你结果回调
      */
-    public static void queryInductionLine(ArrayList<InductionLineBean> inductionLineBeans, Result result) {
+    public synchronized static void queryInductionLine(ArrayList<InductionLineBean> inductionLineBeans, Result result) {
         CustomerThread.poolExecutor.execute(() -> {
             try {
                 Connection drivingConn = DbOpenhelper.getDrivingConn();
